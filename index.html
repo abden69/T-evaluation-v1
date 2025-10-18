@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تقييم المعلمين - جداول تفصيلية</title>
+  <style>
+    :root{--bg:#f7f9ff;--card:#fff;--accent:#0b69ff;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:Tahoma, Arial, sans-serif;background:var(--bg);margin:0;color:#0f1724}
+    .app{max-width:980px;margin:0 auto}
+    header{background:linear-gradient(90deg,var(--accent),#5aa1ff);color:#fff;padding:12px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .nav{display:flex;gap:8px;flex-wrap:wrap}
+    .nav button{background:transparent;border:0;color:rgba(255,255,255,.95);padding:8px 10px;border-radius:8px;font-weight:700;cursor:pointer;display:flex;gap:8px;align-items:center}
+    .nav button.active{background:rgba(255,255,255,.15)}
+    main{padding:14px}
+    .screen{display:none}
+    .screen.active{display:block}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(15,23,36,0.06);margin-bottom:12px}
+    label{display:block;margin:8px 0 6px;font-weight:700}
+    input[type=text],select,input[type=number],textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #e6eefb}
+    .row{display:flex;gap:10px}
+    .row > *{flex:1}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{background:var(--accent);color:#fff;padding:10px 12px;border-radius:10px;border:0;cursor:pointer}
+    .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,105,255,.12)}
+    .small{font-size:13px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;margin-top:8px}
+    th,td{padding:8px;text-align:right;border-bottom:1px solid #f1f5f9}
+    th{background:#f8fafc}
+    .center{text-align:center}
+    canvas{max-width:100%;height:260px}
+    .criterion-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+    .criterion-row input[type=number]{width:100px}
+    .criterion-label{flex:1}
+    .delete-crit{background:#ff6b6b;color:#fff;border:0;padding:6px 8px;border-radius:8px;cursor:pointer}
+    .search-input{width:260px;padding:8px;border-radius:8px;border:1px solid #e6eefb}
+    .icon-btn{border:0;padding:6px 8px;border-radius:6px;cursor:pointer}
+    .edit-btn{background:#0b69ff;color:#fff}
+    .del-btn{background:#ff6b6b;color:#fff}
+    .save-edit-btn{background:#22c55e;color:#fff}
+    .hidden{display:none}
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{background:var(--card);padding:16px;border-radius:12px;max-width:420px;width:95%}
+    .modal h4{margin:0 0 8px}
+    .modal .row{flex-direction:column}
+    .modal .actions{justify-content:flex-end}
+    @media(max-width:680px){.row{flex-direction:column}.search-input{width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="font-size:18px;font-weight:800">📋 تقييم المعلمين</div>
+        <div class="small">نسخة محلية مع جداول مفصّلة</div>
+      </div>
+      <nav class="nav" aria-label="قائمة التنقل">
+        <button class="nav-btn active" data-screen="teachers">🧑‍🏫 المعلمون</button>
+        <button class="nav-btn" data-screen="daily">📅 يومي</button>
+        <button class="nav-btn" data-screen="weekly">📆 أسبوعي</button>
+        <button class="nav-btn" data-screen="monthly">🗓️ شهري</button>
+        <button class="nav-btn" data-screen="report">📊 التقرير</button>
+        <button class="nav-btn" data-screen="settings">⚙️ الإعدادات</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- المعلمون -->
+      <section id="teachers" class="screen active">
+        <div class="card">
+          <h3>إضافة / تعديل معلّم</h3>
+          <label>الاسم الكامل</label>
+          <input id="t_name" type="text" placeholder="مثال: أحمد محمد">
+          <div class="row">
+            <div>
+              <label>الرقم الوظيفي</label>
+              <input id="t_id" type="text" placeholder="مثال: 12345">
+            </div>
+            <div>
+              <label>المادة</label>
+              <input id="t_subject" type="text" placeholder="مثال: رياضيات">
+            </div>
+          </div>
+          <div class="actions" style="margin-top:10px">
+            <button id="addTeacherBtn" class="btn">إضافة معلّم</button>
+            <button id="updateTeacherBtn" class="btn ghost hidden">حفظ التعديل</button>
+            <button id="clearFormBtn" class="btn ghost">تفريغ الحقول</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>قائمة المعلمين</h3>
+          <table id="teachersTable">
+            <thead><tr><th>الاسم</th><th>الرقم</th><th>المادة</th><th class="center">عمليات</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- تقييم يومي -->
+      <section id="daily" class="screen">
+        <div class="card">
+          <h3>تقييم يومي</h3>
+          <label>اختر معلّم</label>
+          <select id="daily_teacher"></select>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <label>معايير التقييم (1-5)</label>
+            <div>
+              <button id="addCriterionDaily" class="btn ghost">➕ إضافة معيار جديد</button>
+            </div>
+          </div>
+
+          <div id="daily_criteria" style="margin-top:8px"></div>
+
+          <label>ملاحظات (اختياري)</label>
+          <textarea id="d_notes" rows="3"></textarea>
+
+          <div class="actions" style="margin-top:10px">
+            <button id="saveDaily" class="btn">حفظ التقييم</button>
+            <button id="saveDailyEdit" class="btn save-edit-btn hidden">💾 حفظ التعديل</button>
+            <button id="resetDaily" class="btn ghost">تفريغ</button>
+          </div>
+
+          <!-- جدول التقييمات اليومية -->
+          <div style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-weight:700">📅 سجلات التقييم اليومي</div>
+              <input id="searchDaily" class="search-input" placeholder="ابحث باسم المعلم...">
+            </div>
+            <div style="overflow:auto;margin-top:8px">
+              <table id="daily_table">
+                <thead id="daily_table_head"></thead>
+                <tbody id="daily_table_body"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- تقييم اسبوعي -->
+      <section id="weekly" class="screen">
+        <div class="card">
+          <h3>تقييم أسبوعي</h3>
+          <label>اختر معلّم</label>
+          <select id="weekly_teacher"></select>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <label>معايير التقييم (1-5)</label>
+            <div>
+              <button id="addCriterionWeekly" class="btn ghost">➕ إضافة معيار جديد</button>
+            </div>
+          </div>
+
+          <div id="weekly_criteria" style="margin-top:8px"></div>
+
+          <label>ملاحظات (اختياري)</label>
+          <textarea id="w_notes" rows="3"></textarea>
+
+          <div class="actions" style="margin-top:10px">
+            <button id="saveWeekly" class="btn">حفظ التقييم</button>
+            <button id="saveWeeklyEdit" class="btn save-edit-btn hidden">💾 حفظ التعديل</button>
+            <button id="resetWeekly" class="btn ghost">تفريغ</button>
+          </div>
+
+          <!-- جدول التقييمات الأسبوعية -->
+          <div style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-weight:700">📆 سجلات التقييم الأسبوعي</div>
+              <input id="searchWeekly" class="search-input" placeholder="ابحث باسم المعلم...">
+            </div>
+            <div style="overflow:auto;margin-top:8px">
+              <table id="weekly_table">
+                <thead id="weekly_table_head"></thead>
+                <tbody id="weekly_table_body"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- تقييم شهري -->
+      <section id="monthly" class="screen">
+        <div class="card">
+          <h3>تقييم شهري</h3>
+          <label>اختر معلّم</label>
+          <select id="monthly_teacher"></select>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <label>معايير التقييم (1-5)</label>
+            <div>
+              <button id="addCriterionMonthly" class="btn ghost">➕ إضافة معيار جديد</button>
+            </div>
+          </div>
+
+          <div id="monthly_criteria" style="margin-top:8px"></div>
+
+          <label>ملاحظات (اختياري)</label>
+          <textarea id="m_notes" rows="3"></textarea>
+
+          <div class="actions" style="margin-top:10px">
+            <button id="saveMonthly" class="btn">حفظ التقييم</button>
+            <button id="saveMonthlyEdit" class="btn save-edit-btn hidden">💾 حفظ التعديل</button>
+            <button id="resetMonthly" class="btn ghost">تفريغ</button>
+          </div>
+
+          <!-- جدول التقييمات الشهرية -->
+          <div style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-weight:700">🗓️ سجلات التقييم الشهري</div>
+              <input id="searchMonthly" class="search-input" placeholder="ابحث باسم المعلم...">
+            </div>
+            <div style="overflow:auto;margin-top:8px">
+              <table id="monthly_table">
+                <thead id="monthly_table_head"></thead>
+                <tbody id="monthly_table_body"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- التقرير -->
+      <section id="report" class="screen">
+        <div class="card">
+          <h3>تقرير الأداء</h3>
+          <div class="small">الترتيب حسب أعلى متوسط تقييم (المعامل: المتوسط البسيط لكل التقييمات)</div>
+          <table id="reportTable"><thead><tr><th>المعلم</th><th>الرقم</th><th>مادة</th><th>متوسط يومي</th><th>متوسط أسبوعي</th><th>متوسط شهري</th><th>المعدل العام</th></tr></thead><tbody></tbody></table>
+          <div style="margin-top:12px">
+            <canvas id="chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- الإعدادات -->
+      <section id="settings" class="screen">
+        <div class="card">
+          <h3>الإعدادات</h3>
+          <p class="small">حفظ البيانات محلياً في المتصفح. لاحقاً يمكن ربط Google Sheets.</p>
+          <div class="actions" style="margin-top:10px">
+            <button id="backupBtn" class="btn">نسخ احتياطي (Download JSON)</button>
+            <button id="restoreBtn" class="btn ghost">استرجاع من JSON</button>
+            <button id="clearAllData" class="btn ghost" style="background:#ff6b6b;color:#fff">مسح كل البيانات</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <h4>إضافة معيار جديد</h4>
+      <div class="row">
+        <label>اسم المعيار</label>
+        <input id="newCritName" type="text" placeholder="مثال: الانضباط">
+        <label>نوع المعيار</label>
+        <select id="newCritKind">
+          <option value="daily">يومي</option>
+          <option value="weekly">أسبوعي</option>
+          <option value="monthly">شهري</option>
+        </select>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <button id="saveNewCrit" class="btn">حفظ</button>
+        <button id="cancelNewCrit" class="btn ghost">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const STORAGE_KEY = 'teachers_evals_v3';
+    let state = {teachers:[], evaluations:[], criteria:{}};
+    const DEFAULT_CRITERIA = { daily:[{id:'d_attendance',name:'الحضور'},{id:'d_organization',name:'تنظيم الحصة'}], weekly:[{id:'w_participation',name:'المشاركة الصفية'},{id:'w_preparation',name:'التحضير'}], monthly:[{id:'m_outcomes',name:'المخرجات التعليمية'},{id:'m_commitment',name:'الالتزام بالواجبات'}] };
+
+    // load / save
+    function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state = JSON.parse(raw); else { state = {teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA}; saveState(); } } catch(e){ state = {teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA}; saveState(); } }
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    // nav
+    document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); showScreen(b.dataset.screen); }));
+    function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='teachers') renderTeachersTable(); if(['daily','weekly','monthly'].includes(id)){ populateTeacherSelects(); renderCriteriaForKind(id); renderRecords(id); } if(id==='report') renderReport(); }
+
+    // teachers
+    function renderTeachersTable(){ const tbody = document.querySelector('#teachersTable tbody'); tbody.innerHTML=''; state.teachers.forEach(t=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${t.name}</td><td>${t.id}</td><td>${t.subject||''}</td><td class='center'><button class='btn ghost' data-action='edit' data-id='${t.id}'>تعديل</button> <button class='btn ghost' style='background:#ff6b6b;color:#fff' data-action='del' data-id='${t.id}'>حذف</button></td>`; tbody.appendChild(tr); }); tbody.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{ const id=btn.dataset.id; const action=btn.dataset.action; if(action==='edit') startEditTeacher(id); if(action==='del' && confirm('هل تريد حذف المعلّم وجميع تقييماته؟')) deleteTeacher(id); })); }
+    function addTeacher(){ const name=document.getElementById('t_name').value.trim(); const id=document.getElementById('t_id').value.trim(); const subject=document.getElementById('t_subject').value.trim(); if(!name||!id){ alert('الرجاء إدخال الاسم والرقم'); return; } if(state.teachers.some(x=>x.id===id)){ alert('الرقم الوظيفي موجود'); return; } state.teachers.push({id,name,subject}); saveState(); renderTeachersTable(); clearTeacherForm(); alert('تمت إضافة المعلم'); }
+    function startEditTeacher(id){ const t=state.teachers.find(x=>x.id===id); if(!t) return; document.getElementById('t_name').value=t.name; document.getElementById('t_id').value=t.id; document.getElementById('t_subject').value=t.subject||''; document.getElementById('addTeacherBtn').classList.add('hidden'); document.getElementById('updateTeacherBtn').classList.remove('hidden'); document.getElementById('t_id').disabled=true; document.getElementById('updateTeacherBtn').onclick = function(){ updateTeacher(); }; }
+    function updateTeacher(){ const id=document.getElementById('t_id').value.trim(); const t=state.teachers.find(x=>x.id===id); if(!t) return; t.name=document.getElementById('t_name').value.trim(); t.subject=document.getElementById('t_subject').value.trim(); saveState(); renderTeachersTable(); clearTeacherForm(); alert('تم حفظ التعديل'); }
+    function clearTeacherForm(){ document.getElementById('t_name').value=''; document.getElementById('t_id').value=''; document.getElementById('t_subject').value=''; document.getElementById('t_id').disabled=false; document.getElementById('addTeacherBtn').classList.remove('hidden'); document.getElementById('updateTeacherBtn').classList.add('hidden'); }
+    function deleteTeacher(id){ state.teachers = state.teachers.filter(t=>t.id!==id); state.evaluations = state.evaluations.filter(ev=>ev.teacherId!==id); saveState(); renderTeachersTable(); alert('تم الحذف'); }
+
+    document.getElementById('addTeacherBtn').addEventListener('click',addTeacher); document.getElementById('clearFormBtn').addEventListener('click',clearTeacherForm);
+
+    // populate selects
+    function populateTeacherSelects(){ ['daily_teacher','weekly_teacher','monthly_teacher'].forEach(selId=>{ const sel=document.getElementById(selId); sel.innerHTML=''; state.teachers.forEach(t=>{ const opt=document.createElement('option'); opt.value=t.id; opt.textContent = `${t.name} — ${t.subject||t.id}`; sel.appendChild(opt); }); }); }
+
+    // criteria dynamic
+    function renderCriteriaForKind(kind){ const container=document.getElementById(kind+'_criteria'); container.innerHTML=''; const list = state.criteria[kind] || []; if(list.length===0){ container.innerHTML='<div class="small">لا توجد معايير بعد. أضف معياراً جديداً.</div>'; return; } list.forEach(crit=>{ const row=document.createElement('div'); row.className='criterion-row'; row.innerHTML = `<div class='criterion-label'>${crit.name}</div><input type='number' min='1' max='5' value='5' data-crit-id='${crit.id}' class='crit-input'> <button class='delete-crit' data-kind='${kind}' data-id='${crit.id}'>🗑️</button>`; container.appendChild(row); }); container.querySelectorAll('.delete-crit').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.id; const k=b.dataset.kind; if(!confirm('حذف المعيار سيؤثر على الإدخال الجديد لكنه لن يغيّر التقييمات السابقة. موافق؟')) return; removeCriterion(k,id); renderCriteriaForKind(k); renderRecords(k); })); }
+    function openNewCriterionModal(kind){ document.getElementById('modalBackdrop').style.display='flex'; document.getElementById('newCritKind').value = kind; document.getElementById('newCritName').value=''; document.getElementById('newCritName').focus(); }
+    function closeNewCriterionModal(){ document.getElementById('modalBackdrop').style.display='none'; }
+    function saveNewCriterion(){ const name=document.getElementById('newCritName').value.trim(); const kind=document.getElementById('newCritKind').value; if(!name){ alert('اكتب اسم المعيار'); return; } const id = kind.charAt(0)+'_'+Date.now().toString(36).slice(2); state.criteria[kind]=state.criteria[kind]||[]; state.criteria[kind].push({id,name}); saveState(); closeNewCriterionModal(); renderCriteriaForKind(kind); renderRecords(kind); alert('تم إضافة المعيار'); }
+    function removeCriterion(kind,id){ state.criteria[kind] = (state.criteria[kind]||[]).filter(c=>c.id!==id); saveState(); }
+    document.getElementById('addCriterionDaily').addEventListener('click',()=>openNewCriterionModal('daily')); document.getElementById('addCriterionWeekly').addEventListener('click',()=>openNewCriterionModal('weekly')); document.getElementById('addCriterionMonthly').addEventListener('click',()=>openNewCriterionModal('monthly')); document.getElementById('cancelNewCrit').addEventListener('click',closeNewCriterionModal); document.getElementById('saveNewCrit').addEventListener('click',saveNewCriterion);
+
+    // collect values
+    function collectCriteriaValues(kind){ const container=document.getElementById(kind+'_criteria'); const inputs = container.querySelectorAll('input[data-crit-id]'); const obj={}; inputs.forEach(inp=>{ obj[inp.dataset.critId] = Number(inp.value) || 0; }); return obj; }
+
+    // records (evaluations): add / render / edit / delete
+    function addRecord(kind){ const sel = document.getElementById(kind+'_teacher'); if(!sel.value) return alert('اختر معلماً'); const teacherId = sel.value; const notes = document.getElementById((kind==='daily'?'d':(kind==='weekly'?'w':'m'))+'_notes').value || ''; const criteriaValues = collectCriteriaValues(kind); const rec = { id: Date.now()+Math.random().toString(36).slice(2), teacherId, criteria: criteriaValues, notes, date: new Date().toISOString() }; state.evaluations.push({...rec, kind}); saveState(); renderRecords(kind); alert('تم حفظ التقييم'); }
+    function renderRecords(kind,filter=''){ // build table head and body
+      const head = document.getElementById(kind+'_table_head'); const body = document.getElementById(kind+'_table_body'); head.innerHTML=''; body.innerHTML=''; const crits = state.criteria[kind]||[];
+      // header
+      const trh = document.createElement('tr'); trh.innerHTML = `<th>المعلم</th><th>التاريخ</th>`;
+      crits.forEach(c=> trh.innerHTML += `<th>${c.name}</th>`);
+      trh.innerHTML += `<th>المتوسط</th><th class='center'>تعديل</th><th class='center'>حذف</th>`; head.appendChild(trh);
+      // rows
+      const rows = state.evaluations.filter(e=>e.kind===kind).filter(e=>{ if(!filter) return true; const t = state.teachers.find(tt=>tt.id===e.teacherId); return t && t.name.toLowerCase().includes(filter.toLowerCase()); });
+      rows.forEach((r,idx)=>{
+        const tr = document.createElement('tr'); const teacher = state.teachers.find(t=>t.id===r.teacherId) || {name:'غير معروف'}; const avg = avgObjectValues(r.criteria);
+        let inner = `<td>${teacher.name}</td><td>${new Date(r.date).toLocaleString()}</td>`;
+        crits.forEach(c=>{ inner += `<td>${r.criteria[c.id] !== undefined ? r.criteria[c.id] : '-'}</td>`; });
+        inner += `<td class='center'>${avg}</td>`;
+        inner += `<td class='center'><button class='icon-btn edit-btn' data-kind='${kind}' data-id='${r.id}'>✏️</button></td>`;
+        inner += `<td class='center'><button class='icon-btn del-btn' data-kind='${kind}' data-id='${r.id}'>🗑️</button></td>`;
+        tr.innerHTML = inner; body.appendChild(tr);
+      });
+      // attach events
+      body.querySelectorAll('.edit-btn').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.id; startEditRecord(kind,id); }));
+      body.querySelectorAll('.del-btn').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.id; if(!confirm('حذف هذا السجل؟')) return; deleteRecord(kind,id); }));
+    }
+    function avgObjectValues(obj){ const vals = Object.values(obj||{}).map(v=>Number(v)||0); if(!vals.length) return 0; return Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*100)/100; }
+
+    // edit flow
+    let currentEdit = {kind:null,id:null};
+    function startEditRecord(kind,id){ const rec = state.evaluations.find(e=>e.id===id && e.kind===kind); if(!rec) return; const sel = document.getElementById(kind+'_teacher'); sel.value = rec.teacherId; // fill criteria
+      Object.keys(rec.criteria||{}).forEach(cid=>{ const inp = document.querySelector(`#${kind}_criteria input[data-crit-id='${cid}']`); if(inp) inp.value = rec.criteria[cid]; });
+      document.getElementById((kind==='daily'?'d':(kind==='weekly'?'w':'m'))+'_notes').value = rec.notes || '';
+      // show save edit button
+      document.getElementById('save'+ capitalize(kind) + 'Edit').classList.remove('hidden'); document.getElementById('save'+ capitalize(kind)).classList.add('hidden');
+      currentEdit = {kind,id};
+    }
+    function saveEditRecord(){ const kind = currentEdit.kind; if(!kind) return; const id=currentEdit.id; const sel = document.getElementById(kind+'_teacher'); const teacherId = sel.value; const notes = document.getElementById((kind==='daily'?'d':(kind==='weekly'?'w':'m'))+'_notes').value || ''; const criteriaValues = collectCriteriaValues(kind); const idx = state.evaluations.findIndex(e=>e.id===id && e.kind===kind); if(idx===-1) return; state.evaluations[idx].teacherId = teacherId; state.evaluations[idx].criteria = criteriaValues; state.evaluations[idx].notes = notes; state.evaluations[idx].date = new Date().toISOString(); saveState(); renderRecords(kind); // reset form buttons
+      document.getElementById('save'+ capitalize(kind) + 'Edit').classList.add('hidden'); document.getElementById('save'+ capitalize(kind)).classList.remove('hidden'); // clear fields
+      document.getElementById((kind==='daily'?'d':(kind==='weekly'?'w':'m'))+'_notes').value=''; document.querySelectorAll(`#${kind}_criteria input[data-crit-id]`).forEach(i=>i.value=5);
+      currentEdit = {kind:null,id:null}; alert('تم حفظ التعديل'); }
+    function deleteRecord(kind,id){ state.evaluations = state.evaluations.filter(e=>!(e.id===id && e.kind===kind)); saveState(); renderRecords(kind); }
+
+    // save buttons
+    document.getElementById('saveDaily').addEventListener('click',()=>addRecord('daily'));
+    document.getElementById('saveWeekly').addEventListener('click',()=>addRecord('weekly'));
+    document.getElementById('saveMonthly').addEventListener('click',()=>addRecord('monthly'));
+    document.getElementById('saveDailyEdit').addEventListener('click',saveEditRecord);
+    document.getElementById('saveWeeklyEdit').addEventListener('click',saveEditRecord);
+    document.getElementById('saveMonthlyEdit').addEventListener('click',saveEditRecord);
+
+    // search
+    document.getElementById('searchDaily').addEventListener('input',e=>renderRecords('daily',e.target.value));
+    document.getElementById('searchWeekly').addEventListener('input',e=>renderRecords('weekly',e.target.value));
+    document.getElementById('searchMonthly').addEventListener('input',e=>renderRecords('monthly',e.target.value));
+
+    // reset helpers
+    document.getElementById('resetDaily').addEventListener('click',()=>{ document.querySelectorAll('#daily_criteria input[data-crit-id]').forEach(i=>i.value=5); document.getElementById('d_notes').value=''; });
+    document.getElementById('resetWeekly').addEventListener('click',()=>{ document.querySelectorAll('#weekly_criteria input[data-crit-id]').forEach(i=>i.value=5); document.getElementById('w_notes').value=''; });
+    document.getElementById('resetMonthly').addEventListener('click',()=>{ document.querySelectorAll('#monthly_criteria input[data-crit-id]').forEach(i=>i.value=5); document.getElementById('m_notes').value=''; });
+
+    // report
+    let chartInstance = null;
+    function renderReport(){ const tbody=document.querySelector('#reportTable tbody'); tbody.innerHTML=''; const report = state.teachers.map(t=>{ const evs = state.evaluations.filter(e=>e.teacherId===t.id); const daily = evs.filter(e=>e.kind==='daily').map(e=>avgObjectValues(e.criteria)); const weekly = evs.filter(e=>e.kind==='weekly').map(e=>avgObjectValues(e.criteria)); const monthly = evs.filter(e=>e.kind==='monthly').map(e=>avgObjectValues(e.criteria)); const avgDaily = daily.length?average(daily):0; const avgWeekly = weekly.length?average(weekly):0; const avgMonthly = monthly.length?average(monthly):0; const counts=[avgDaily>0,avgWeekly>0,avgMonthly>0].filter(x=>x).length||1; const general = Math.round(((avgDaily+avgWeekly+avgMonthly)/counts)*100)/100; return {id:t.id,name:t.name,subject:t.subject||'',avgDaily,avgWeekly,avgMonthly,general}; }); report.sort((a,b)=>b.general-a.general); report.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.name}</td><td>${r.id}</td><td>${r.subject}</td><td class='center'>${round(r.avgDaily)}</td><td class='center'>${round(r.avgWeekly)}</td><td class='center'>${round(r.avgMonthly)}</td><td class='center'>${r.general}</td>`; tbody.appendChild(tr); }); const labels = report.map(r=>r.name+' ('+r.id+')'); const data = report.map(r=>r.general); const ctx = document.getElementById('chart').getContext('2d'); if(chartInstance) chartInstance.destroy(); chartInstance = new Chart(ctx,{type:'bar',data:{labels,datasets:[{label:'المعدل العام',data}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:5}}}}); }
+    function average(arr){ if(!arr||!arr.length) return 0; return arr.reduce((a,b)=>a+b,0)/arr.length; }
+    function round(v){ return v?Math.round(v*100)/100:0; }
+
+    // backup/restore/clear
+    document.getElementById('backupBtn').addEventListener('click',()=>{ const dataStr = JSON.stringify(state,null,2); const blob = new Blob([dataStr],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='teachers_evals_backup.json'; a.click(); URL.revokeObjectURL(url); });
+    document.getElementById('restoreBtn').addEventListener('click',()=>{ const input=document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange=e=>{ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=evt=>{ try{ const obj=JSON.parse(evt.target.result); if(obj.teachers && obj.evaluations && obj.criteria){ state=obj; saveState(); init(); alert('تم الاسترجاع'); } else alert('ملف غير صالح'); } catch(err){ alert('خطأ'); } }; reader.readAsText(file); }; input.click(); });
+    document.getElementById('clearAllData').addEventListener('click',()=>{ if(confirm('هل تريد مسح كل البيانات؟')){ state={teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA}; saveState(); init(); alert('تم المسح'); } });
+
+    // util
+    function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+    // init
+    function init(){ loadState(); renderTeachersTable(); populateTeacherSelects(); renderCriteriaForKind('daily'); renderCriteriaForKind('weekly'); renderCriteriaForKind('monthly'); renderRecords('daily'); renderRecords('weekly'); renderRecords('monthly'); renderReport(); }
+    init();
+  </script>
+</body>
+</html>
