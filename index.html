@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>تقييم المعلمين - جداول تفصيلية مع الحضور والانصراف</title>
+  <title>تقييم المعلمين - جداول تفصيلية مع الحضور والانصراف والغياب</title>
   <style>
     :root{--bg:#f7f9ff;--card:#fff;--accent:#0b69ff;--muted:#6b7280}
     *{box-sizing:border-box}
@@ -73,6 +73,7 @@
         <button class="nav-btn" data-screen="weekly">📆 أسبوعي</button>
         <button class="nav-btn" data-screen="monthly">🗓️ شهري</button>
         <button class="nav-btn" data-screen="attendance">📖 الحضور والانصراف</button>
+        <button class="nav-btn" data-screen="absences">📋 الغياب</button>
         <button class="nav-btn" data-screen="report">📊 التقرير</button>
         <button class="nav-btn" data-screen="fullReport">📈 التقرير الشامل</button>
         <button class="nav-btn" data-screen="settings">⚙️ الإعدادات</button>
@@ -281,6 +282,51 @@
         </div>
       </section>
 
+      <!-- الغياب -->
+      <section id="absences" class="screen">
+        <div class="card">
+          <h3>سجل الغياب</h3>
+          <label>اختر معلّم</label>
+          <select id="absence_teacher"></select>
+
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>التاريخ</label>
+              <input id="abs_date" type="date">
+            </div>
+            <div>
+              <label>نوع الغياب</label>
+              <select id="abs_type">
+                <option value="excused">بعذر</option>
+                <option value="unexcused">بدون عذر</option>
+              </select>
+            </div>
+            <div id="abs_penalty_wrap" style="display:none">
+              <label>قيمة الخصم (عددي)</label>
+              <input id="abs_penalty" type="number" min="0" step="1" placeholder="مثال: 1">
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top:10px">
+            <button id="saveAbsence" class="btn">حفظ السجل</button>
+            <button id="resetAbsence" class="btn ghost">تفريغ الحقول</button>
+          </div>
+
+          <div style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-weight:700">📋 سجلات الغياب</div>
+              <input id="searchAbsence" class="search-input" placeholder="ابحث باسم المعلم...">
+            </div>
+            <div style="overflow:auto;margin-top:8px">
+              <table id="absence_table">
+                <thead><tr><th>المعلم</th><th>التاريخ</th><th>نوع الغياب</th><th>قيمة الخصم</th><th class="center">حذف</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- التقرير (بدون الحضور) -->
       <section id="report" class="screen">
         <div class="card">
@@ -296,7 +342,7 @@
       <!-- التقرير الشامل (مع فلتر فترة) -->
       <section id="fullReport" class="screen">
         <div class="card">
-          <h3>التقرير الشامل (متضمن الحضور والانصراف)</h3>
+          <h3>التقرير الشامل (متضمن الحضور والانصراف والغياب)</h3>
           <div class="row" style="align-items:end">
             <div>
               <label>تاريخ من</label>
@@ -313,7 +359,7 @@
           </div>
 
           <div style="margin-top:12px;overflow:auto">
-            <table id="fullReportTable"><thead><tr><th>المعلم</th><th>الرقم</th><th>مادة</th><th>متوسط يومي</th><th>متوسط أسبوعي</th><th>متوسط شهري</th><th>المعدل العام</th><th>مجموع التأخر (د)</th><th>مجموع الانصراف المبكر (د)</th><th>الأداء النهائي</th></tr></thead><tbody></tbody></table>
+            <table id="fullReportTable"><thead><tr><th>المعلم</th><th>الرقم</th><th>مادة</th><th>متوسط يومي</th><th>متوسط أسبوعي</th><th>متوسط شهري</th><th>المعدل العام</th><th>مجموع التأخر (د)</th><th>مجموع الانصراف المبكر (د)</th><th>مجموع الغياب بدون عذر</th><th>الأداء النهائي</th></tr></thead><tbody></tbody></table>
           </div>
         </div>
       </section>
@@ -363,17 +409,17 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const STORAGE_KEY = 'teachers_evals_v4_attendance';
-    let state = {teachers:[], evaluations:[], criteria:{}, attendance:[], official:{start:'07:00',end:'13:25'}};
+    const STORAGE_KEY = 'teachers_evals_v4_attendance_absences';
+    let state = {teachers:[], evaluations:[], criteria:{}, attendance:[], absences:[], official:{start:'07:00',end:'13:25'}};
     const DEFAULT_CRITERIA = { daily:[{id:'d_attendance',name:'الحضور'},{id:'d_organization',name:'تنظيم الحصة'}], weekly:[{id:'w_participation',name:'المشاركة الصفية'},{id:'w_preparation',name:'التحضير'}], monthly:[{id:'m_outcomes',name:'المخرجات التعليمية'},{id:'m_commitment',name:'الالتزام بالواجبات'}] };
 
     // load / save
-    function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state = JSON.parse(raw); else { state = {teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA, attendance:[], official:{start:'07:00',end:'13:25'}}; saveState(); } } catch(e){ state = {teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA, attendance:[], official:{start:'07:00',end:'13:25'}}; saveState(); } }
+    function loadState(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state = JSON.parse(raw); else { state = {teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA, attendance:[], absences:[], official:{start:'07:00',end:'13:25'}}; saveState(); } } catch(e){ state = {teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA, attendance:[], absences:[], official:{start:'07:00',end:'13:25'}}; saveState(); } }
     function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 
     // nav
     document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); showScreen(b.dataset.screen); }));
-    function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='teachers') renderTeachersTable(); if(['daily','weekly','monthly'].includes(id)){ populateTeacherSelects(); renderCriteriaForKind(id); renderRecords(id); } if(id==='attendance'){ populateTeacherSelects(); renderAttendanceTable(); } if(id==='report') renderReport(); if(id==='fullReport'){ populateTeacherSelects(); renderFullReport(); } }
+    function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); const el = document.getElementById(id); if(el) el.classList.add('active'); if(id==='teachers') renderTeachersTable(); if(['daily','weekly','monthly'].includes(id)){ populateTeacherSelects(); renderCriteriaForKind(id); renderRecords(id); } if(id==='attendance'){ populateTeacherSelects(); renderAttendanceTable(); } if(id==='absences'){ populateTeacherSelects(); renderAbsences(); } if(id==='report') renderReport(); if(id==='fullReport'){ populateTeacherSelects(); renderFullReport(); } }
 
     // teachers
     function renderTeachersTable(){ const tbody = document.querySelector('#teachersTable tbody'); tbody.innerHTML=''; state.teachers.forEach(t=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${t.name}</td><td>${t.id}</td><td>${t.subject||''}</td><td class='center'><button class='btn ghost' data-action='edit' data-id='${t.id}'>تعديل</button> <button class='btn ghost' style='background:#ff6b6b;color:#fff' data-action='del' data-id='${t.id}'>حذف</button></td>`; tbody.appendChild(tr); }); tbody.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{ const id=btn.dataset.id; const action=btn.dataset.action; if(action==='edit') startEditTeacher(id); if(action==='del' && confirm('هل تريد حذف المعلّم وجميع تقييماته؟')) deleteTeacher(id); })); }
@@ -381,12 +427,12 @@
     function startEditTeacher(id){ const t=state.teachers.find(x=>x.id===id); if(!t) return; document.getElementById('t_name').value=t.name; document.getElementById('t_id').value=t.id; document.getElementById('t_subject').value=t.subject||''; document.getElementById('addTeacherBtn').classList.add('hidden'); document.getElementById('updateTeacherBtn').classList.remove('hidden'); document.getElementById('t_id').disabled=true; document.getElementById('updateTeacherBtn').onclick = function(){ updateTeacher(); }; }
     function updateTeacher(){ const id=document.getElementById('t_id').value.trim(); const t=state.teachers.find(x=>x.id===id); if(!t) return; t.name=document.getElementById('t_name').value.trim(); t.subject=document.getElementById('t_subject').value.trim(); saveState(); renderTeachersTable(); clearTeacherForm(); showToast('✅ تم حفظ التعديل'); }
     function clearTeacherForm(){ document.getElementById('t_name').value=''; document.getElementById('t_id').value=''; document.getElementById('t_subject').value=''; document.getElementById('t_id').disabled=false; document.getElementById('addTeacherBtn').classList.remove('hidden'); document.getElementById('updateTeacherBtn').classList.add('hidden'); }
-    function deleteTeacher(id){ state.teachers = state.teachers.filter(t=>t.id!==id); state.evaluations = state.evaluations.filter(ev=>ev.teacherId!==id); state.attendance = state.attendance.filter(a=>a.teacherId!==id); saveState(); renderTeachersTable(); showToast('🗑️ تم حذف المعلم'); }
+    function deleteTeacher(id){ state.teachers = state.teachers.filter(t=>t.id!==id); state.evaluations = state.evaluations.filter(ev=>ev.teacherId!==id); state.attendance = state.attendance.filter(a=>a.teacherId!==id); state.absences = state.absences.filter(a=>a.teacherId!==id); saveState(); renderTeachersTable(); showToast('🗑️ تم حذف المعلم'); }
 
     document.getElementById('addTeacherBtn').addEventListener('click',addTeacher); document.getElementById('clearFormBtn').addEventListener('click',clearTeacherForm);
 
     // populate selects
-    function populateTeacherSelects(){ ['daily_teacher','weekly_teacher','monthly_teacher','attendance_teacher'].forEach(selId=>{ const sel=document.getElementById(selId); if(!sel) return; sel.innerHTML=''; state.teachers.forEach(t=>{ const opt=document.createElement('option'); opt.value=t.id; opt.textContent = `${t.name} — ${t.subject||t.id}`; sel.appendChild(opt); }); }); }
+    function populateTeacherSelects(){ ['daily_teacher','weekly_teacher','monthly_teacher','attendance_teacher','absence_teacher'].forEach(selId=>{ const sel=document.getElementById(selId); if(!sel) return; sel.innerHTML=''; state.teachers.forEach(t=>{ const opt=document.createElement('option'); opt.value=t.id; opt.textContent = `${t.name} — ${t.subject||t.id}`; sel.appendChild(opt); }); }); }
 
     // criteria dynamic
     function renderCriteriaForKind(kind){ const container=document.getElementById(kind+'_criteria'); if(!container) return; container.innerHTML=''; const list = state.criteria[kind] || []; if(list.length===0){ container.innerHTML='<div class="small">لا توجد معايير بعد. أضف معياراً جديداً.</div>'; return; } list.forEach(crit=>{ const row=document.createElement('div'); row.className='criterion-row'; row.innerHTML = `<div class='criterion-label'>${crit.name}</div><input type='number' min='1' max='5' value='5' data-crit-id='${crit.id}' class='crit-input'> <button class='delete-crit' data-kind='${kind}' data-id='${crit.id}'>🗑️</button>`; container.appendChild(row); }); container.querySelectorAll('.delete-crit').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.id; const k=b.dataset.kind; if(!confirm('حذف المعيار سيؤثر على الإدخال الجديد لكنه لن يغيّر التقييمات السابقة. موافق؟')) return; removeCriterion(k,id); renderCriteriaForKind(k); renderRecords(k); })); }
@@ -439,39 +485,78 @@
       return (h2*60 + m2) - (h1*60 + m1);
     }
     function addAttendance(){
-  const sel=document.getElementById('attendance_teacher');
-  if(!sel || !sel.value){ showToast('اختر معلماً من القائمة', '#ff6b6b'); return; }
-  const date=document.getElementById('att_date').value;
-  if(!date){ showToast('اختر التاريخ', '#ff6b6b'); return; }
-  const arrival=document.getElementById('att_arrival').value;
-  const leave=document.getElementById('att_leave').value;
-  if(!arrival||!leave){ showToast('ادخل وقتي الحضور والانصراف', '#ff6b6b'); return; }
+      const sel=document.getElementById('attendance_teacher');
+      if(!sel || !sel.value){ showToast('اختر معلماً من القائمة', '#ff6b6b'); return; }
+      const date=document.getElementById('att_date').value;
+      if(!date){ showToast('اختر التاريخ', '#ff6b6b'); return; }
+      const arrival=document.getElementById('att_arrival').value;
+      const leave=document.getElementById('att_leave').value;
+      if(!arrival||!leave){ showToast('ادخل وقتي الحضور والانصراف', '#ff6b6b'); return; }
 
-  const officialStart = state.official.start || '07:00';
-  const officialEnd = state.official.end || '13:25';
-  const late = Math.max(0, minutesBetweenTimes(officialStart, arrival));
-  const early = Math.max(0, minutesBetweenTimes(leave, officialEnd));
+      const officialStart = state.official.start || '07:00';
+      const officialEnd = state.official.end || '13:25';
+      const late = Math.max(0, minutesBetweenTimes(officialStart, arrival));
+      const early = Math.max(0, minutesBetweenTimes(leave, officialEnd));
 
-  const rec = { id: Date.now()+Math.random().toString(36).slice(2),
-    teacherId: sel.value, date, arrival, leave, late, early };
-  state.attendance.push(rec);
-  saveState();
-  renderAttendanceTable();
+      const rec = { id: Date.now()+Math.random().toString(36).slice(2),
+        teacherId: sel.value, date, arrival, leave, late, early };
+      state.attendance.push(rec);
+      saveState();
+      renderAttendanceTable();
 
-  // ✅ تفريغ الحقول بعد الحفظ
-  document.getElementById('att_date').value = '';
-  document.getElementById('att_arrival').value = state.official.start || '07:00';
-  document.getElementById('att_leave').value = state.official.end || '13:25';
+      // تفريغ الحقول بعد الحفظ
+      document.getElementById('att_date').value = '';
+      document.getElementById('att_arrival').value = state.official.start || '07:00';
+      document.getElementById('att_leave').value = state.official.end || '13:25';
 
-  // ✅ إشعار لطيف
-  showToast('✅ تم حفظ سجل الحضور بنجاح');
-}
+      // إشعار
+      showToast('✅ تم حفظ سجل الحضور بنجاح');
+    }
 
     function renderAttendanceTable(filter=''){ const tbody = document.querySelector('#attendance_table tbody'); tbody.innerHTML=''; const rows = state.attendance.filter(a=>{ if(!filter) return true; const t = state.teachers.find(tt=>tt.id===a.teacherId); return t && t.name.toLowerCase().includes(filter.toLowerCase()); }); rows.forEach(r=>{ const tr=document.createElement('tr'); const teacher = state.teachers.find(t=>t.id===r.teacherId) || {name:'غير معروف'}; tr.innerHTML = `<td>${teacher.name}</td><td>${r.date}</td><td>${r.arrival}</td><td>${r.leave}</td><td class='center'>${r.late}</td><td class='center'>${r.early}</td><td class='center'><button class='icon-btn del-btn' data-id='${r.id}'>🗑️</button></td>`; tbody.appendChild(tr); }); tbody.querySelectorAll('.del-btn').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.id; if(!confirm('حذف هذا السجل؟')) return; state.attendance = state.attendance.filter(a=>a.id!==id); saveState(); renderAttendanceTable(); })); }
 
     document.getElementById('saveAttendance').addEventListener('click',addAttendance);
     document.getElementById('resetAttendance').addEventListener('click',()=>{ document.getElementById('att_date').value=''; document.getElementById('att_arrival').value=state.official.start||'07:00'; document.getElementById('att_leave').value=state.official.end||'13:25'; });
     document.getElementById('searchAttendance').addEventListener('input',e=>renderAttendanceTable(e.target.value));
+
+    // absences (الغياب)
+    // إظهار/إخفاء حقل الخصم بناءً على نوع الغياب
+    document.getElementById('abs_type').addEventListener('change', e=>{
+      const wrap = document.getElementById('abs_penalty_wrap');
+      if(e.target.value === 'unexcused') wrap.style.display = 'block'; else wrap.style.display = 'none';
+    });
+
+    function addAbsence(){
+      const sel = document.getElementById('absence_teacher');
+      if(!sel || !sel.value){ showToast('اختر معلماً من القائمة', '#ff6b6b'); return; }
+      const date = document.getElementById('abs_date').value;
+      if(!date){ showToast('اختر التاريخ', '#ff6b6b'); return; }
+      const type = document.getElementById('abs_type').value; // 'excused' or 'unexcused'
+      let penalty = 0;
+      if(type === 'unexcused'){
+        const v = Number(document.getElementById('abs_penalty').value || 0);
+        if(isNaN(v) || v < 0){ showToast('أدخل قيمة خصم صحيحة', '#ff6b6b'); return; }
+        penalty = Math.round(v);
+      }
+      const rec = { id: Date.now()+Math.random().toString(36).slice(2), teacherId: sel.value, date, type, penalty };
+      state.absences.push(rec);
+      saveState();
+      renderAbsences();
+
+      // تفريغ الحقول
+      document.getElementById('abs_date').value = '';
+      document.getElementById('abs_type').value = 'excused';
+      document.getElementById('abs_penalty').value = '';
+      document.getElementById('abs_penalty_wrap').style.display = 'none';
+
+      showToast('✅ تم حفظ سجل الغياب');
+    }
+
+    function renderAbsences(filter=''){ const tbody = document.querySelector('#absence_table tbody'); tbody.innerHTML=''; const rows = state.absences.filter(a=>{ if(!filter) return true; const t = state.teachers.find(tt=>tt.id===a.teacherId); return t && t.name.toLowerCase().includes(filter.toLowerCase()); }); rows.forEach(r=>{ const tr=document.createElement('tr'); const teacher = state.teachers.find(t=>t.id===r.teacherId) || {name:'غير معروف'}; tr.innerHTML = `<td>${teacher.name}</td><td>${r.date}</td><td>${r.type === 'unexcused' ? 'بدون عذر' : 'بعذر'}</td><td class='center'>${r.penalty || 0}</td><td class='center'><button class='icon-btn del-btn' data-id='${r.id}'>🗑️</button></td>`; tbody.appendChild(tr); }); tbody.querySelectorAll('.del-btn').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.id; if(!confirm('حذف هذا السجل؟')) return; state.absences = state.absences.filter(a=>a.id!==id); saveState(); renderAbsences(); showToast('🗑️ تم حذف السجل'); })); }
+
+    document.getElementById('saveAbsence').addEventListener('click', addAbsence);
+    document.getElementById('resetAbsence').addEventListener('click', ()=>{ document.getElementById('abs_date').value=''; document.getElementById('abs_type').value='excused'; document.getElementById('abs_penalty').value=''; document.getElementById('abs_penalty_wrap').style.display='none'; });
+    document.getElementById('searchAbsence').addEventListener('input', e=>renderAbsences(e.target.value));
 
     // report
     let chartInstance = null;
@@ -485,17 +570,24 @@
     function renderFullReport(){ const tbody=document.querySelector('#fullReportTable tbody'); tbody.innerHTML=''; const range = applyFullFilterAndGetRange(); state.teachers.forEach(t=>{ const evs = state.evaluations.filter(e=>e.teacherId===t.id); const daily = evs.filter(e=>e.kind==='daily').map(e=>avgObjectValues(e.criteria)); const weekly = evs.filter(e=>e.kind==='weekly').map(e=>avgObjectValues(e.criteria)); const monthly = evs.filter(e=>e.kind==='monthly').map(e=>avgObjectValues(e.criteria)); const avgDaily = daily.length?average(daily):0; const avgWeekly = weekly.length?average(weekly):0; const avgMonthly = monthly.length?average(monthly):0; const counts=[avgDaily>0,avgWeekly>0,avgMonthly>0].filter(x=>x).length||1; const general = Math.round(((avgDaily+avgWeekly+avgMonthly)/counts)*100)/100;
         // attendance totals within range
         const att = state.attendance.filter(a=>a.teacherId===t.id).filter(a=>{ if(!range.from && !range.to) return true; return withinRange(a.date, range.from, range.to); }); const totalLate = att.reduce((s,a)=>s + (Number(a.late)||0),0); const totalEarly = att.reduce((s,a)=>s + (Number(a.early)||0),0);
-        const finalScore = Math.round((general - ((totalLate + totalEarly)/60))*100)/100;
-        const tr=document.createElement('tr'); tr.innerHTML = `<td>${t.name}</td><td>${t.id}</td><td>${t.subject||''}</td><td class='center'>${round(avgDaily)}</td><td class='center'>${round(avgWeekly)}</td><td class='center'>${round(avgMonthly)}</td><td class='center'>${general}</td><td class='center'>${totalLate}</td><td class='center'>${totalEarly}</td><td class='center'>${finalScore}</td>`; tbody.appendChild(tr);
+
+        // absences sum (بدون عذر) within range
+        const abs = state.absences.filter(a=>a.teacherId===t.id).filter(a=>{ if(!range.from && !range.to) return true; return withinRange(a.date, range.from, range.to); });
+        const totalAbsencePenalty = abs.reduce((s,a)=> s + (a.type === 'unexcused' ? (Number(a.penalty)||0) : 0), 0);
+
+        // final score = general - مجموع الخصومات (عددي)
+        const finalScore = Math.round((general - totalAbsencePenalty) * 100)/100;
+
+        const tr=document.createElement('tr'); tr.innerHTML = `<td>${t.name}</td><td>${t.id}</td><td>${t.subject||''}</td><td class='center'>${round(avgDaily)}</td><td class='center'>${round(avgWeekly)}</td><td class='center'>${round(avgMonthly)}</td><td class='center'>${general}</td><td class='center'>${totalLate}</td><td class='center'>${totalEarly}</td><td class='center'>${totalAbsencePenalty}</td><td class='center'>${finalScore}</td>`; tbody.appendChild(tr);
     }); }
 
     document.getElementById('applyFullFilter').addEventListener('click',renderFullReport);
     document.getElementById('clearFullFilter').addEventListener('click',()=>{ document.getElementById('filter_from').value=''; document.getElementById('filter_to').value=''; renderFullReport(); });
 
     // backup/restore/clear
-    document.getElementById('backupBtn').addEventListener('click',()=>{ const dataStr = JSON.stringify(state,null,2); const blob = new Blob([dataStr],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='teachers_evals_backup_with_attendance.json'; a.click(); URL.revokeObjectURL(url); });
+    document.getElementById('backupBtn').addEventListener('click',()=>{ const dataStr = JSON.stringify(state,null,2); const blob = new Blob([dataStr],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='teachers_evals_backup_with_attendance_absences.json'; a.click(); URL.revokeObjectURL(url); });
     document.getElementById('restoreBtn').addEventListener('click',()=>{ const input=document.createElement('input'); input.type='file'; input.accept='application/json'; input.onchange=e=>{ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=evt=>{ try{ const obj=JSON.parse(evt.target.result); if(obj.teachers && obj.evaluations && obj.criteria){ state=obj; saveState(); init(); alert('تم الاسترجاع'); } else alert('ملف غير صالح'); } catch(err){ alert('خطأ'); } }; reader.readAsText(file); }; input.click(); });
-    document.getElementById('clearAllData').addEventListener('click',()=>{ if(confirm('هل تريد مسح كل البيانات؟')){ state={teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA, attendance:[], official:{start:'07:00',end:'13:25'}}; saveState(); init(); alert('تم المسح'); } });
+    document.getElementById('clearAllData').addEventListener('click',()=>{ if(confirm('هل تريد مسح كل البيانات؟')){ state={teachers:[], evaluations:[], criteria:DEFAULT_CRITERIA, attendance:[], absences:[], official:{start:'07:00',end:'13:25'}}; saveState(); init(); alert('تم المسح'); } });
 
     // settings - official times
     document.getElementById('official_start').addEventListener('change',()=>{ state.official.start = document.getElementById('official_start').value; saveState(); });
@@ -506,34 +598,35 @@
 
     // init
     // دالة لإظهار إشعار علوي لطيف
-function showToast(msg, color='#0b69ff') {
-  const t = document.getElementById('toast');
-  if(!t) return;
-  t.textContent = msg;
-  t.style.background = color;
-  t.style.opacity = '1';
-  setTimeout(() => { t.style.opacity = '0'; }, 2500);
-}
+    function showToast(msg, color='#0b69ff') {
+      const t = document.getElementById('toast');
+      if(!t) return;
+      t.textContent = msg;
+      t.style.background = color;
+      t.style.opacity = '1';
+      setTimeout(() => { t.style.opacity = '0'; }, 2500);
+    }
 
     function init(){
-  loadState();
-  renderTeachersTable();
-  populateTeacherSelects();
-  renderCriteriaForKind('daily');
-  renderCriteriaForKind('weekly');
-  renderCriteriaForKind('monthly');
-  renderRecords('daily');
-  renderRecords('weekly');
-  renderRecords('monthly');
-  renderAttendanceTable();
-  renderReport();
-  renderFullReport();
-  document.getElementById('official_start').value = state.official.start || '07:00';
-  document.getElementById('official_end').value = state.official.end || '13:25';
+      loadState();
+      renderTeachersTable();
+      populateTeacherSelects();
+      renderCriteriaForKind('daily');
+      renderCriteriaForKind('weekly');
+      renderCriteriaForKind('monthly');
+      renderRecords('daily');
+      renderRecords('weekly');
+      renderRecords('monthly');
+      renderAttendanceTable();
+      renderAbsences();
+      renderReport();
+      renderFullReport();
+      document.getElementById('official_start').value = state.official.start || '07:00';
+      document.getElementById('official_end').value = state.official.end || '13:25';
 
-  // ✅ إصلاح نهائي: تعبئة القوائم بعد تحميل المعلمين لضمان عمل جميع الأزرار
-  setTimeout(populateTeacherSelects, 100);
-}
+      // إصلاح نهائي: تعبئة القوائم بعد تحميل المعلمين لضمان عمل جميع الأزرار
+      setTimeout(populateTeacherSelects, 100);
+    }
     init();
   </script>
 </body>
