@@ -469,14 +469,14 @@ let state = {teachers:[], criteria:[], evaluations:[], deductions:[], attendance
 
 // DEFAULT criteria
 const DEFAULT_CRITERIA = [
-  {id:'c_daily_1',name:'الطابور حضور وتفاعل',kind:'يومي',max:10,note:''},
-  {id:'c_daily_2',name:'الإلتزام بتوقيت الحصة',kind:'يومي',max:10,note:''},
-  {id:'c_daily_2',name:'الزي الرسمي',kind:'يومي',max:10,note:''},
-  {id:'c_week_3',name:'التحضير',kind:'أسبوعي',max:10,note:''},
-  {id:'c_week_3',name:'سجل المتابعة',kind:'أسبوعي',max:10,note:''},
-  {id:'c_week_1',name:'مناوبة الفسحة',kind:'أسبوعي',max:10,note:''},
-  {id:'c_week_2',name:'مناوبة الصلاة',kind:'أسبوعي',max:10,note:''},
-  {id:'c_month_1',name:'الإذاعة',kind:'شهري',max:10,note:''}
+  {id:'c_daily_1',name:'الطابور حضور وتفاعل',kind:'daily',max:10,note:''},
+  {id:'c_daily_2',name:'الإلتزام بتوقيت الحصة',kind:'daily',max:10,note:''},
+  {id:'c_daily_2',name:'الزي الرسمي',kind:'daily',max:10,note:''},
+  {id:'c_week_3',name:'التحضير',kind:'weekly',max:10,note:''},
+  {id:'c_week_3',name:'سجل المتابعة',kind:'weekly',max:10,note:''},
+  {id:'c_week_1',name:'مناوبة الفسحة',kind:'weekly',max:10,note:''},
+  {id:'c_week_2',name:'مناوبة الصلاة',kind:'weekly',max:10,note:''},
+  {id:'c_month_1',name:'الإذاعة',kind:'monthly',max:10,note:''}
 ];
 
 function save(){ localStorage.setItem(STORAGE, JSON.stringify(state)); }
