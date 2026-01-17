@@ -3,276 +3,114 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>نظام تقييم أداء المعلمين — الإصدار 1</title>
+<title>نظام تقييم المعلمين — (Excel أوراق منفصلة)</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-    /* ===========================
-       Theme: Official Emerald Green
-       index25_full - Part 1 (styles + layout)
-       =========================== */
-    :root{
-      --bg:#f8f9f8;           /* very light background */
-      --card:#ffffff;         /* card background */
-      --emerald-dark:#0f5132; /* headings / topbar */
-      --emerald:#198754;      /* main button/accent */
-      --emerald-2:#2ea26d;    /* accent lighter */
-      --table-head:#e9f5ec;   /* table header light green */
-      --muted:#4f5d52;        /* secondary text */
-      --danger:#d9534f;
-      --gold-highlight:#fff7e6; 
-      --gold-border: rgba(255,170,0,0.12);
-      --shadow: 0 10px 30px rgba(15,81,50,0.06);
-      --radius: 10px;
-      --glass: rgba(255,255,255,0.75);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:var(--bg);
-      font-family:'Cairo',sans-serif;
-      color:#071123;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      line-height:1.5;
-    }
-    
-    /* container */
-    .container{
-      max-width:1200px;
-      margin:18px auto;
-      padding:18px;
-    }
-    
-    /* Top header */
-    .header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:16px 18px;
-      border-radius:var(--radius);
-      background: linear-gradient(90deg,var(--emerald),var(--emerald-2));
-      color: #fff;
-      box-shadow: var(--shadow);
-    }
-    .header .title{
-      font-weight:900;
-      font-size:1.05rem;
-      letter-spacing:0.2px;
-    }
-    .header .subtitle{
-      font-weight:700;
-      font-size:0.86rem;
-      opacity:0.95;
-    }
-    
-    /* nav pills */
-    .nav{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
-    .nav button{
-      background:transparent;
-      border:0;
-      padding:8px 12px;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:800;
-      color:var(--emerald-dark);
-      transition: all 200ms ease;
-    }
-    .nav button:hover{
-      transform:translateY(-3px);
-      color:var(--emerald);
-    }
-    .nav button.active{
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.86));
-      box-shadow: 0 8px 18px rgba(15,81,50,0.06);
-    }
-    
-    /* card style */
-    .card{
-      background:var(--card);
-      padding:14px;
-      border-radius:var(--radius);
-      margin-top:12px;
-      box-shadow: 0 8px 26px rgba(10,25,18,0.03);
-      border: 1px solid rgba(15,81,50,0.03);
-    }
-    
-    /* forms & inputs */
-    input,select,textarea{
-      width:100%;
-      padding:10px 12px;
-      border-radius:8px;
-      border:1px solid #e6efe8;
-      background: linear-gradient(180deg, #fff, #fbfdfb);
-      outline:none;
-      transition: box-shadow 160ms ease, transform 120ms ease;
-    }
-    input:focus, select:focus, textarea:focus{
-      box-shadow: 0 6px 18px rgba(25,135,84,0.08);
-      transform: translateY(-1px);
-      border-color: var(--emerald-2);
-    }
-    
-    /* rows */
-    .row{ display:flex; gap:10px }
-    .row> *{ flex:1 }
-    
-    /* buttons */
-    .btn{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      justify-content:center;
-      padding:9px 14px;
-      border-radius:9px;
-      border:0;
-      cursor:pointer;
-      font-weight:800;
-      color:#fff;
-      background: linear-gradient(90deg,var(--emerald),var(--emerald-2));
-      box-shadow: 0 8px 20px rgba(15,81,50,0.08);
-      transition: transform 180ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms;
-    }
-    .btn:hover{
-      transform: translateY(-4px);
-      box-shadow: 0 16px 36px rgba(15,81,50,0.12);
-    }
-    .btn.ghost{
-      background: transparent;
-      color: var(--emerald-dark);
-      border:1px solid rgba(15,81,50,0.06);
-      box-shadow:none;
-    }
-    .btn.danger{
-      background: linear-gradient(90deg,#e64a3c,#d9534f);
-      color:#fff;
-    }
-    
-    /* table */
-    .table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:10px;
-      font-size:0.95rem;
-    }
-    .table th, .table td{
-      padding:10px;
-      text-align:right;
-      vertical-align:middle;
-      border-bottom:1px solid #f1f6f1;
-    }
-    .table th{
-      background:var(--table-head);
-      font-weight:900;
-      color:var(--emerald-dark);
-      position:sticky;
-      top:0;
-      z-index:2;
-    }
-    .table td.center{ text-align:center }
-    .table td.left{ text-align:left; direction:ltr }
-    
-    /* highlights */
-    .highlight-best{
-      background: linear-gradient(90deg,#fefbe8,#fff6e4);
-      padding:10px;
-      border-radius:8px;
-      border:1px solid rgba(255,200,0,0.12);
-      margin-top:10px;
-      font-weight:900;
-      color:#5a360a;
-    }
-    
-    /* gold row for top performer */
-    .gold-row{
-      background: var(--gold-highlight) !important;
-      border:1px solid var(--gold-border);
-    }
-    
-    /* small helpers */
-    .small{ font-size:13px; color:var(--muted) }
-    
-    /* responsive */
-    @media(max-width:900px){
-      .row{ flex-direction:column }
-      .header{ flex-direction:column; align-items:flex-start; gap:8px }
-    }
-    
-    /* subtle heading hover (for title interactions) */
-    .hov-title{
-      display:inline-block;
-      transition: color 220ms ease, transform 180ms ease;
-      color: var(--emerald-dark);
-      font-weight:900;
-    }
-    .hov-title:hover{
-      color: var(--emerald);
-      transform: translateY(-3px);
-    }
-    
-    /* canvas area */
-    .canvas-wrap{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:12px;
-      background:var(--card);
-      border-radius:8px;
-      margin-top:12px;
-      box-shadow: 0 6px 18px rgba(10,25,18,0.02);
-    }
-    
-    /* toast */
-    .toast{
-      position:fixed;
-      top:18px;
-      right:18px;
-      padding:12px 16px;
-      border-radius:10px;
-      background: linear-gradient(90deg,var(--emerald),var(--emerald-2));
-      color:#fff;
-      font-weight:800;
-      display:none;
-      z-index:9999;
-      box-shadow: 0 8px 28px rgba(15,81,50,0.12);
-    }
-    
-    /* modal backdrop */
-    .modal-backdrop{
-      position:fixed; inset:0;
-      background: rgba(2,6,8,0.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:2000;
-    }
-    .modal{
-      background:var(--card);
-      padding:16px;
-      border-radius:10px;
-      max-width:760px;
-      width:94%;
-      box-shadow: 0 18px 44px rgba(10,25,18,0.06);
-    }
-    
-    /* subtle link style */
-    .linkish{ color:var(--emerald); text-decoration:underline; cursor:pointer; font-weight:700 }
-    </style>  
+  :root{
+    --bg:#f8f9f8; --card:#ffffff; --emerald-dark:#080b18; --emerald:#281987; --emerald-2:#362ea2;
+    --table-head:#e9f5ec; --muted:#4f5d52; --danger:#d9534f; --gold-highlight:#fff7e6;
+    --gold-border: rgba(255,170,0,0.12); --shadow: 0 10px 30px rgba(15,81,50,0.06); --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);font-family:'Cairo',sans-serif;color:#071123;line-height:1.5;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  }
+  
+  /* LOGIN SCREEN */
+  #loginScreen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+    z-index: 10000; display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+  }
+  .login-card {
+    background: #fff; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center;
+  }
+  .login-input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Cairo'; outline:none; }
+  .login-btn { width: 100%; padding: 12px; background: var(--emerald); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+  .login-error { color: var(--danger); display: none; font-weight:bold; margin-top:10px;}
+
+  /* MAIN APP */
+  .container{max-width:1200px;margin:18px auto;padding:18px; display:none;}
+  .header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 18px;border-radius:var(--radius);
+          background: linear-gradient(90deg,var(--emerald),var(--emerald-2));color:#fff;box-shadow: var(--shadow);}
+  .header .title{font-weight:900;font-size:1.05rem;}
+  .nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .nav button{background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:800;color:var(--emerald-dark);}
+  .nav button:hover{transform:translateY(-3px);color:var(--emerald);}
+  .nav button.active{background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.86)); box-shadow: 0 8px 18px rgba(15,81,50,0.06);}
+  .card{background:var(--card);padding:14px;border-radius:var(--radius);margin-top:12px;box-shadow: 0 8px 26px rgba(10,25,18,0.03);border: 1px solid rgba(15,81,50,0.03);}
+  .btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;padding:9px 14px;border-radius:9px;border:0;cursor:pointer;font-weight:800;color:#fff;background: linear-gradient(90deg,var(--emerald),var(--emerald-2));box-shadow: 0 8px 20px rgba(15,81,50,0.08);transition: transform 180ms, box-shadow 180ms;}
+  .btn:hover{transform: translateY(-4px);}
+  .btn.ghost{background: transparent;color: var(--emerald-dark);border:1px solid rgba(15,81,50,0.06);box-shadow:none;}
+  .btn.danger{background: linear-gradient(90deg,#e64a3c,#d9534f);color:#fff;}
+  input,select,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e6efe8;background: linear-gradient(180deg, #fff, #fbfdfb);outline:none;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.95rem;overflow:auto;}
+  .table th, .table td{padding:10px;text-align:right;vertical-align:middle;border-bottom:1px solid #f1f6f1;}
+  .table th{background:var(--table-head);font-weight:900;color:var(--emerald-dark);position:sticky;top:0;z-index:2;}
+  .small{ font-size:13px;color:var(--muted) }
+  .toast{position:fixed;top:18px;right:18px;padding:12px 16px;border-radius:10px;background: linear-gradient(90deg,var(--emerald),var(--emerald-2));color:#fff;font-weight:800;display:none;z-index:9999;box-shadow: 0 8px 28px rgba(15,81,50,0.12);}
+  
+  .filter-box { background: #f1f6f1; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0; }
+  .filter-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
+  .filter-row > div { flex: 1; min-width: 150px; }
+
+  /* Checkboxes */
+  input[type="checkbox"] { appearance: none; width: 24px; height: 24px; border: 2px solid #bbb; border-radius: 6px; display: inline-block; position: relative; cursor: pointer; vertical-align: middle; margin-left: 6px; background:#fff; }
+  input[type="checkbox"]:checked { border-color: #d9534f; background-color: #ffe5e5; }
+  input[type="checkbox"]:checked::after { content: "✖"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -52%); font-size: 16px; color: #d9534f; font-weight: bold; }
+  input[type="checkbox"].chk-positive:checked { border-color: var(--emerald); background-color: #e9f5ec; }
+  input[type="checkbox"].chk-positive:checked::after { content: "✔"; color: var(--emerald); font-size: 18px; }
+  input:disabled { background-color: #eee; color: #999; cursor: not-allowed; }
+
+  /* Report Styles */
+  .report-wrap { border:1px solid #eee; padding:20px; border-radius:8px; background:#fff; margin-top:10px; }
+  .report-header { display:flex; justify-content:space-between; border-bottom:3px solid var(--emerald); padding-bottom:15px; margin-bottom:20px; align-items: flex-end;}
+  .section { margin-top:20px; }
+  .section h4 { border-right:4px solid var(--emerald); padding-right:10px; color:var(--emerald-dark); margin-bottom:10px; font-size:1.1rem; }
+  .kpi { display:flex; gap:15px; margin-top:10px; flex-wrap:wrap; }
+  .card-kpi { background:#f4f9f6; padding:10px 15px; border-radius:8px; text-align:center; min-width:100px; border:1px solid rgba(15,81,50,0.1); }
+
+  /* PRINT MEDIA QUERY */
+  @media print {
+    .header, .nav, .filter-box, .btn, #loginScreen { display: none !important; }
+    .container { margin: 0; padding: 0; max-width: 100%; }
+    .card { border: 0; box-shadow: none; padding: 0; margin: 0; }
+    .report-wrap { border: 0; padding: 0; margin: 0; }
+    body { background: #fff; }
+    .report-page { page-break-after: always; }
+  }
+</style>
 </head>
-<body class="smooth-scroll">
-<div class="container">
-  <header class="header" role="banner">
-    <div class="title">🎓 نظام تقييم أداء المعلمين — الإصدار 1</div>
-    <div style="display:flex;gap:8px;align-items:center"><button id="backupTop" class="btn ghost">💾</button></div>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div style="font-size:3rem;margin-bottom:10px">🎓</div>
+    <div style="font-weight:900;font-size:1.4rem;color:var(--emerald-dark);margin-bottom:20px">تسجيل الدخول</div>
+    <input type="text" id="login_user" class="login-input" placeholder="اسم المستخدم (user name)">
+    <input type="password" id="login_pass" class="login-input" placeholder="كلمة المرور (password)">
+    <button id="doLogin" class="login-btn">دخول</button>
+    <div id="loginError" class="login-error">بيانات خاطئة</div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="container" id="appContainer">
+
+  <header class="header">
+    <div class="title">🎓 نظام تقييم المعلمين</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="logoutBtn" class="btn danger" style="padding:6px 10px; font-size:0.9rem">خروج</button>
+      <button id="backupTop" class="btn ghost">💾</button>
+    </div>
   </header>
 
-  <nav class="nav" id="mainNav" role="navigation" aria-label="الشريط الرئيسي">
+  <nav class="nav" id="mainNav">
     <button class="nav-btn" data-screen="teachers">المعلمين</button>
     <button class="nav-btn" data-screen="criteria">بنود التقييم</button>
     <button class="nav-btn" data-screen="daily">التقييم اليومي</button>
@@ -283,89 +121,94 @@
     <button class="nav-btn" data-screen="summaryReport">📊 التقرير المختصر</button>
     <button class="nav-btn" data-screen="fullReport">التقرير الشامل</button>
     <button class="nav-btn" data-screen="settings">الإعدادات</button>
+    <button class="nav-btn" data-screen="teacherReport">📄 تقرير المعلم المفصّل</button>
   </nav>
 
   <!-- Teachers -->
-  <section id="teachers" class="card screen" style="display:none" aria-labelledby="teachersTitle">
-    <h3 id="teachersTitle">المعلمين</h3>
-    <label class="small">الاسم</label><input id="t_name" aria-label="اسم المعلم">
-    <div class="row" style="margin-top:8px"><div><label class="small">الرقم</label><input id="t_id" aria-label="رقم المعلم"></div><div><label class="small">المادة</label><input id="t_subject" aria-label="التخصص"></div></div>
+  <section id="teachers" class="card screen" style="display:none">
+    <h3>المعلمين</h3>
+    
+    <div class="row">
+      <div><label class="small">الاسم</label><input id="t_name"></div>
+      <div><label class="small">الرقم</label><input id="t_id"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label class="small">المادة</label><input id="t_subject"></div>
+      <div><label class="small">الإيميل</label><input id="t_email" placeholder="example@mail.com"></div>
+    </div>
 
-    <!-- زر الإضافة وزر استيراد Excel/CSV -->
-    <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+    <div style="margin-top:8px;display:flex;gap:8px">
       <button id="addTeacher" class="btn">إضافة معلّم</button>
       <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none">
       <button id="btnImportFile" class="btn ghost">📂 تحميل من Excel/CSV</button>
     </div>
-
-    <div style="margin-top:12px"><table class="table" id="teachersTable" aria-label="جدول المعلمين"><thead><tr><th>الاسم</th><th>الرقم</th><th>المادة</th><th>عمليات</th></tr></thead><tbody></tbody></table></div>
-  </section>
-  <!-- Criteria -->
-  <section id="criteria" class="card screen" style="display:none" aria-labelledby="criteriaTitle">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <h3 id="criteriaTitle">بنود التقييم</h3>
-        <div class="small">أضف بنود التقييم وحدد الحد الأقصى ونوع البند (يومي/أسبوعي/شهري)</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button id="restoreDefaults" class="btn ghost">🔄 استعادة البنود الافتراضية</button>
-      </div>
+    <div style="margin-top:12px">
+      <table class="table" id="teachersTable"><thead><tr><th>الاسم</th><th>الرقم</th><th>المادة</th><th>الإيميل</th><th>عمليات</th></tr></thead><tbody></tbody></table>
     </div>
+  </section>
 
+  <!-- Criteria -->
+  <section id="criteria" class="card screen" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3>بنود التقييم</h3>
+      <button id="restoreDefaults" class="btn ghost">🔄 استعادة الافتراضي</button>
+    </div>
     <div style="margin-top:12px">
       <div class="row">
-        <div>
-          <label class="small">اسم البند</label>
-          <input id="ci_name" placeholder="مثال: الحضور">
-        </div>
-        <div>
-          <label class="small">الحد الأعلى</label>
-          <input id="ci_max" type="number" min="1" value="10">
-        </div>
-        <div>
-          <label class="small">نوع البند</label>
-          <select id="ci_kind"><option value="daily">يومي</option><option value="weekly">أسبوعي</option><option value="monthly">شهري</option></select>
-        </div>
+        <div><label class="small">اسم البند</label><input id="ci_name" placeholder="مثال: التحضير"></div>
+        <div><label class="small">الحد الأعلى</label><input id="ci_max" type="number" min="1" value="10"></div>
+        <div><label class="small">نوع البند</label><select id="ci_kind"><option value="daily">يومي</option><option value="weekly">أسبوعي</option><option value="monthly">شهري</option></select></div>
+        <div><label class="small">قيمة الخصم</label><input id="ci_penalty" type="number" min="0" step="0.1" value="1"></div>
       </div>
-      <div style="margin-top:8px"><button id="addCi" class="btn">➕ إضافة بند جديد</button></div>
-
-      <div style="margin-top:12px"><table class="table" id="ci_table"><thead><tr><th>اسم البند</th><th>الحد الأقصى</th><th>النوع</th><th>عمليات</th></tr></thead><tbody></tbody></table></div>
+      <div style="margin-top:8px">
+        <label class="small">طريقة الاحتساب:</label>
+        <select id="ci_logic" style="background:#f0f8ff; border-color:#b0c4de;">
+          <option value="negative">تسجيل مخالفات (صح ✖ = خصم)</option>
+          <option value="positive">تسجيل حضور/التزام (صح ✔ = عدم خصم)</option>
+        </select>
+      </div>
+      <div style="margin-top:12px"><button id="addCi" class="btn">➕ إضافة بند جديد</button></div>
+      <div style="margin-top:12px"><table class="table" id="ci_table"><thead><tr><th>اسم البند</th><th>الحد الأقصى</th><th>النوع</th><th>طريقة الاحتساب</th><th>الخصم</th><th>عمليات</th></tr></thead><tbody></tbody></table></div>
     </div>
   </section>
 
-  <!-- Daily -->
+  <!-- DAILY -->
   <section id="daily" class="card screen" style="display:none">
     <h3>التقييم اليومي</h3>
-    <label class="small">اختر معلّم</label><select id="daily_teacher"></select>
-    <div id="daily_wrap" style="margin-top:8px"></div>
-    <div style="margin-top:8px"><button id="saveDaily" class="btn">تسجيل خصومات (جلسة جديدة)</button></div>
-    <div style="margin-top:12px"><table class="table" id="daily_table"><thead id="daily_head"></thead><tbody id="daily_body"></tbody></table></div>
+    <div class="row" style="margin-top:8px; margin-bottom:12px"><div><label class="small">التاريخ</label><input id="daily_date" type="date"></div></div>
+    <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px;"><div id="daily_table_wrap"></div></div>
+    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;"><button id="saveDaily" class="btn">💾 حفظ التقييم</button></div>
+    <div style="margin-top:20px"><h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة (اليومية)</h4><table class="table" id="daily_sessions_table"><thead id="daily_head"></thead><tbody id="daily_body"></tbody></table></div>
   </section>
 
-  <!-- Weekly -->
+  <!-- WEEKLY -->
   <section id="weekly" class="card screen" style="display:none">
     <h3>التقييم الأسبوعي</h3>
-    <label class="small">اختر معلّم</label><select id="weekly_teacher"></select>
-    <div id="weekly_wrap" style="margin-top:8px"></div>
-    <div style="margin-top:8px"><button id="saveWeekly" class="btn">تسجيل خصومات (جلسة جديدة)</button></div>
-    <div style="margin-top:12px"><table class="table" id="weekly_table"><thead id="weekly_head"></thead><tbody id="weekly_body"></tbody></table></div>
+    <div class="row" style="margin-top:8px; margin-bottom:12px"><div><label class="small">التاريخ</label><input id="weekly_date" type="date"></div></div>
+    <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px;"><div id="weekly_table_wrap"></div></div>
+    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;"><button id="saveWeekly" class="btn">💾 حفظ التقييم</button></div>
+    <div style="margin-top:20px"><h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة (الأسبوعية)</h4><table class="table" id="weekly_sessions_table"><thead id="weekly_head"></thead><tbody id="weekly_body"></tbody></table></div>
   </section>
 
-  <!-- Monthly -->
+  <!-- MONTHLY -->
   <section id="monthly" class="card screen" style="display:none">
     <h3>التقييم الشهري</h3>
-    <label class="small">اختر معلّم</label><select id="monthly_teacher"></select>
-    <div id="monthly_wrap" style="margin-top:8px"></div>
-    <div style="margin-top:8px"><button id="saveMonthly" class="btn">تسجيل خصومات (جلسة جديدة)</button></div>
-    <div style="margin-top:12px"><table class="table" id="monthly_table"><thead id="monthly_head"></thead><tbody id="monthly_body"></tbody></table></div>
+    <div class="row" style="margin-top:8px; margin-bottom:12px"><div><label class="small">التاريخ</label><input id="monthly_date" type="date"></div></div>
+    <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px;"><div id="monthly_table_wrap"></div></div>
+    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;"><button id="saveMonthly" class="btn">💾 حفظ التقييم</button></div>
+    <div style="margin-top:20px"><h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة (الشهرية)</h4><table class="table" id="monthly_sessions_table"><thead id="monthly_head"></thead><tbody id="monthly_body"></tbody></table></div>
   </section>
 
   <!-- Attendance -->
   <section id="attendance" class="card screen" style="display:none">
     <h3>الحضور والانصراف</h3>
     <label class="small">اختر معلّم</label><select id="attendance_teacher"></select>
-    <div class="row" style="margin-top:8px"><div><label class="small">التاريخ</label><input id="att_date" type="date"></div><div><label class="small">وقت الحضور</label><input id="att_arrival" type="time" value="07:00"></div><div><label class="small">وقت الانصراف</label><input id="att_leave" type="time" value="13:25"></div></div>
-    <div style="margin-top:8px"><button id="saveAttendance" class="btn">حفظ (يحسب الخصم تلقائيًا)</button> <button id="clearAttendance" class="btn ghost">مسح الكل</button></div>
+    <div class="row" style="margin-top:8px">
+      <div><label class="small">التاريخ</label><input id="att_date" type="date"></div>
+      <div><label class="small">وقت الحضور</label><input id="att_arrival" type="time" value="07:00"></div>
+      <div><label class="small">وقت الانصراف</label><input id="att_leave" type="time" value="13:25"></div>
+    </div>
+    <div style="margin-top:8px"><button id="saveAttendance" class="btn">حفظ</button><button id="clearAttendance" class="btn ghost">مسح الكل</button></div>
     <div style="margin-top:12px"><table class="table" id="attendance_table"><thead><tr><th>المعلم</th><th>التاريخ</th><th>الحضور</th><th>الانصراف</th><th>تأخر</th><th>انصراف مبكر</th><th>خصم</th><th>حذف</th></tr></thead><tbody></tbody></table></div>
   </section>
 
@@ -373,456 +216,685 @@
   <section id="absences" class="card screen" style="display:none">
     <h3>الغياب</h3>
     <label class="small">اختر معلّم</label><select id="absence_teacher"></select>
-    <div class="row" style="margin-top:8px"><div><label class="small">التاريخ</label><input id="abs_date" type="date"></div><div><label class="small">النوع</label><select id="abs_type"><option value="excused">بعذر</option><option value="unexcused">بدون عذر</option></select></div><div id="abs_penalty_wrap" style="display:none"><label class="small">قيمة الخصم</label><input id="abs_penalty" type="number" min="0" step="0.5"></div></div>
-    <div style="margin-top:8px"><button id="saveAbsence" class="btn">حفظ الغياب</button> <button id="clearAbsence" class="btn ghost">مسح الكل</button></div>
+    <div class="row" style="margin-top:8px">
+      <div><label class="small">التاريخ</label><input id="abs_date" type="date"></div>
+      <div><label class="small">النوع</label><select id="abs_type"><option value="excused">بعذر</option><option value="unexcused">بدون عذر</option></select></div>
+      <div><label class="small" style="color:var(--danger)">قيمة الخصم</label><input id="abs_penalty" type="number" min="0" step="0.5" value="0"></div>
+    </div>
+    <div style="margin-top:8px"><button id="saveAbsence" class="btn">حفظ الغياب</button><button id="clearAbsence" class="btn ghost">مسح الكل</button></div>
     <div style="margin-top:12px"><table class="table" id="absence_table"><thead><tr><th>المعلم</th><th>التاريخ</th><th>النوع</th><th>خصم</th><th>حذف</th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <!-- Summary Report (مرتّب + تمييز الثلاثة الأوائل) -->
+  <!-- Summary Report -->
   <section id="summaryReport" class="card screen" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <div>
-        <div style="font-weight:900">وزارة التعليم – إدارة التعليم</div>
-        <div style="font-weight:900;font-size:18px;margin-top:6px">التقرير المختصر لأداء المعلمين</div>
-        <div class="small" id="reportDate"></div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-        <div class="export-row">
-          <button id="exportPdf" class="btn">📄 تصدير إلى PDF</button>
-          <button id="exportExcel" class="btn">📊 تصدير إلى Excel</button>
-          <button id="showChart" class="btn ghost">📈 عرض الرسم البياني</button>
+    <h3>📊 التقرير المختصر</h3>
+    <div class="filter-box">
+        <div class="small" style="margin-bottom:5px;font-weight:bold">تحديد الفترة (اتركها فارغة لعرض الكل):</div>
+        <div class="filter-row">
+            <div><label class="small">من تاريخ</label><input type="date" id="summary_start"></div>
+            <div><label class="small">إلى تاريخ</label><input type="date" id="summary_end"></div>
+            <div><button id="btnFilterSummary" class="btn" style="width:100%">عرض التقرير</button></div>
         </div>
-      </div>
     </div>
-
-    <div style="margin-top:12px;overflow:auto">
-      <table class="table" id="summary_table">
-        <thead id="summary_head"></thead>
-        <tbody id="summary_body"></tbody>
-      </table>
-      <div id="bestTeacher" class="highlight-best" style="display:none"></div>
-    </div>
+    <div class="small" id="reportDate" style="margin-bottom:10px;"></div>
+    <table class="table"><thead id="summary_head"></thead><tbody id="summary_body"></tbody></table>
+    <div id="bestTeacher" style="margin-top:10px;font-weight:bold;font-size:1.1rem;color:var(--emerald-dark);"></div>
+    <div style="margin-top:12px;"><button id="exportExcel" class="btn">📥 تصدير Excel</button></div>
   </section>
+
   <!-- Full report -->
   <section id="fullReport" class="card screen" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;gap:8px;align-items:center"><div class="logo-slot">شعار</div><div><div style="font-weight:900">وزارة التعليم – إدارة التعليم</div><div style="font-weight:700">التقرير الشامل</div></div></div>
-      <div><button id="printFull" class="btn ghost">🖨️ طباعة</button></div>
+    <h3>التقرير الشامل</h3>
+    <div class="filter-box">
+        <div class="small" style="margin-bottom:5px;font-weight:bold">تحديد الفترة:</div>
+        <div class="filter-row">
+            <div><label class="small">من تاريخ</label><input type="date" id="full_start"></div>
+            <div><label class="small">إلى تاريخ</label><input type="date" id="full_end"></div>
+            <div><button id="btnFilterFull" class="btn" style="width:100%">عرض التقرير</button></div>
+        </div>
     </div>
     <div style="margin-top:12px"><table class="table" id="full_table"><thead id="full_head"></thead><tbody id="full_body"></tbody><tfoot id="full_foot"></tfoot></table></div>
+    <div style="margin-top:12px"><button id="printFull" class="btn ghost">🖨️ طباعة</button></div>
+  </section>
+
+  <!-- Teacher Report -->
+  <section id="teacherReport" class="card screen" style="display:none">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px"><label class="small">اختر معلماً</label><select id="report_teacher_select"></select></div>
+    </div>
+    <div class="filter-box" style="margin-top:10px">
+        <div class="filter-row">
+            <div><label class="small">من تاريخ</label><input type="date" id="report_start"></div>
+            <div><label class="small">إلى تاريخ</label><input type="date" id="report_end"></div>
+            <div><button id="showReport" class="btn" style="width:100%">عرض التقرير</button></div>
+        </div>
+    </div>
+    
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button id="printReport" class="btn ghost">🖨️ طباعة التقرير الحالي</button>
+      <button id="printAllReports" class="btn" style="background:var(--emerald-dark)">🖨️ طباعة تقرير مجمع (للكل)</button>
+      <button id="exportTeacherExcel" class="btn" style="background:#217346; color:#fff">📥 تصدير التقرير Excel</button>
+      <button id="exportAllExcel" class="btn" style="background:#155724; color:#fff">📥 تصدير الكل (ورقات منفصلة)</button>
+    </div>
+
+    <div id="reportContainer" style="margin-top:18px;display:none">
+      <div class="report-wrap" id="reportPrintArea">
+        <div class="report-header">
+          <div style="flex:1">
+            <!-- Title Removed in Print -->
+            <div class="report-title" id="r_teacher_name" style="font-size:1.8rem; font-weight:900; color:#000;"></div>
+            <div id="r_teacher_meta" style="margin-top:8px;"></div> 
+            <div class="muted small" id="r_period_info" style="margin-top:8px; font-weight:bold"></div>
+          </div>
+          <div class="kpi" id="r_kpis"></div>
+        </div>
+        <div class="section"><h4>الملخص</h4><div id="r_summary_text" class="muted"></div></div>
+        <div class="section"><h4>تفاصيل الأداء</h4><div id="r_details_tables"></div></div>
+        <div class="section"><h4>الحضور/الغياب</h4><div id="r_attendance_table"></div><div id="r_absence_table" style="margin-top:8px"></div></div>
+        <div class="section"><h4>السجلات</h4><div id="r_sessions_list" class="muted"></div></div>
+      </div>
+    </div>
   </section>
 
   <!-- Settings -->
   <section id="settings" class="card screen" style="display:none">
-    <h3>الإعدادات</h3>
-    <label class="small">الدوام - بداية</label><input id="official_start" type="time" value="07:00">
-    <label class="small">الدوام - نهاية</label><input id="official_end" type="time" value="13:25">
-    <label class="small">أقصى خصم للحضور والانصراف</label><input id="max_att" type="number" min="0" step="0.5" value="2">
-    <div style="margin-top:12px"><button id="backup" class="btn">💾 حفظ نسخة احتياطية</button> <button id="restore" class="btn ghost">📂 استعادة</button> <button id="resetAll" class="btn" style="background:var(--danger);color:#fff">مسح كل البيانات</button></div>
-  </section>
-
-  <!-- Chart area -->
-  <section id="chartSection" class="card screen" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div style="font-weight:900">وزارة التعليم – إدارة التعليم</div>
-        <div style="font-weight:900;font-size:18px;margin-top:6px">الرسم البياني — مقارنة أداء المعلمين (بعد الخصم)</div>
-        <div class="small" id="chartDate"></div>
-      </div>
-      <div>
-        <button id="backToSummary" class="btn ghost">⬅ العودة إلى التقرير</button>
-      </div>
+    <h3>الإعدادات العامة</h3>
+    <div class="row">
+      <div><label class="small">بداية الدوام</label><input type="time" id="official_start" value="07:00"></div>
+      <div><label class="small">نهاية الدوام</label><input type="time" id="official_end" value="13:25"></div>
+      <div><label class="small">الحد الأقصى للخصم (تأخر)</label><input type="number" id="max_att" min="0" step="0.5" value="2"></div>
     </div>
-    <div class="canvas-wrap">
-      <canvas id="teachersChart" height="220"></canvas>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="backup" class="btn">💾 نسخ احتياطي</button>
+      <input type="file" id="restoreFile" accept=".json" style="display:none">
+      <button id="restore" class="btn ghost">📤 استعادة نسخة</button>
+      <button id="resetAll" class="btn danger">🧹 تصفير النظام</button>
     </div>
   </section>
 
   <div class="toast" id="toast"></div>
-  <!-- نافذة تأكيد عامة -->
-  <div id="confirmModal" class="modal-backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalMessage">
-      <div id="modalMessage" style="font-weight:700; font-size:1rem; margin-bottom:14px;">هل أنت متأكد؟</div>
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button id="modalOk" class="btn">موافق</button>
-        <button id="modalCancel" class="btn ghost">إلغاء</button>
-      </div>
-    </div>
-  </div>
-  
 </div>
 
-<!-- مكتبات -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-/* Complete JS for index26_full.html — replaces previous script block.
-   This is the robust version (based on index25 logic) with summary sorting + top3 coloring.
-*/
 (function(){
-const STORAGE = 'index26_state_v1';
-let state = {teachers:[], criteria:[], evaluations:[], deductions:[], attendance:[], absences:[], official:{start:'07:00', end:'13:25', maxAttendancePenalty:2}, ui:{sound:true}};
+const STORAGE = 'index27_final_v13_excel_sheet_names';
+const ADMIN_USER = 'adminha';
+const ADMIN_PASS = '123456ha';
 
-// DEFAULT criteria
+let state = {
+  teachers: [], criteria: [], evaluations: [], deductions: [], attendance: [], absences: [],
+  official: {start:'07:00', end:'13:25', maxAttendancePenalty:2}
+};
+let uiState = { daily: null, weekly: null, monthly: null };
+
 const DEFAULT_CRITERIA = [
-  {id:'c_daily_1',name:'الطابور حضور وتفاعل',kind:'daily',max:10,note:''},
-  {id:'c_daily_2',name:'الإلتزام بتوقيت الحصة',kind:'daily',max:10,note:''},
-  {id:'c_daily_2',name:'الزي الرسمي',kind:'daily',max:10,note:''},
-  {id:'c_week_3',name:'التحضير',kind:'weekly',max:10,note:''},
-  {id:'c_week_3',name:'سجل المتابعة',kind:'weekly',max:10,note:''},
-  {id:'c_week_1',name:'مناوبة الفسحة',kind:'weekly',max:10,note:''},
-  {id:'c_week_2',name:'مناوبة الصلاة',kind:'weekly',max:10,note:''},
-  {id:'c_month_1',name:'الإذاعة',kind:'monthly',max:10,note:''}
+  {id:'c_daily_1',name:'الطابور الصباحي',kind:'daily',max:10,penalty:1, logic:'positive'},
+  {id:'c_daily_2',name:'الإلتزام بتوقيت الحصص',kind:'daily',max:10,penalty:1, logic:'negative'},
+  {id:'c_daily_3',name:'الزي الرسمي',kind:'daily',max:10,penalty:0.5, logic:'negative'},
+  {id:'c_week_1',name:'التحضير الأسبوعي',kind:'weekly',max:10,penalty:1, logic:'negative'},
+  {id:'c_week_2',name:'سجل المتابعة',kind:'weekly',max:10,penalty:1, logic:'negative'},
+  {id:'c_week_3',name:'مناوبة الفسحة',kind:'weekly',max:10,penalty:1, logic:'negative'},
+  {id:'c_week_4',name:'مناوبة الصلاة',kind:'weekly',max:10,penalty:1, logic:'negative'},
+  {id:'c_month_1',name:'المشاركة في الإذاعة',kind:'monthly',max:10,penalty:1, logic:'negative'}
 ];
 
-function save(){ localStorage.setItem(STORAGE, JSON.stringify(state)); }
-function load(){ const raw = localStorage.getItem(STORAGE); if(raw){ try{ state = JSON.parse(raw); if(!Array.isArray(state.criteria) || state.criteria.length===0){ state.criteria = DEFAULT_CRITERIA.slice(); save(); } }catch(e){ state = {teachers:[], criteria: DEFAULT_CRITERIA.slice(), evaluations:[], deductions:[], attendance:[], absences:[], official:{start:'07:00', end:'13:25', maxAttendancePenalty:2}, ui:{sound:true}}; save(); } } else { state.criteria = DEFAULT_CRITERIA.slice(); save(); } }
-
+function save(){ try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){} }
+function load(){
+  const raw = localStorage.getItem(STORAGE);
+  if(raw){ try{ state = JSON.parse(raw); } catch(e){ state.criteria = DEFAULT_CRITERIA.slice(); } }
+  if(!Array.isArray(state.criteria) || state.criteria.length===0) state.criteria = DEFAULT_CRITERIA.slice();
+  if(!Array.isArray(state.teachers)) state.teachers = [];
+  if(!Array.isArray(state.deductions)) state.deductions = [];
+  save();
+}
 function uid(p='id'){ return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
-function toast(msg){ const t=document.getElementById('toast'); if(!t) return; t.textContent=msg; t.style.display='block'; setTimeout(()=> t.style.display='none',2200); }
 function el(q){ return document.querySelector(q); }
 function els(q){ return Array.from(document.querySelectorAll(q)); }
+function toast(msg){ const t=el('#toast'); if(!t) return; t.textContent = msg; t.style.display = 'block'; setTimeout(()=> t.style.display='none',2200); }
 function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function minutesBetween(t1,t2){ if(!t1||!t2) return 0; const a=t1.split(':').map(Number); const b=t2.split(':').map(Number); return (b[0]*60+b[1]) - (a[0]*60+a[1]); }
-
-/* NAV */
-function bindNav(){ els('.nav-btn').forEach(b=> b.addEventListener('click', ()=>{ els('.nav-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); show(b.dataset.screen); })); }
-function show(id){ els('.screen').forEach(s=> s.style.display='none'); const elc=document.getElementById(id); if(elc) elc.style.display='block';
-  if(id==='teachers') renderTeachers();
-  if(id==='criteria') renderCriteria();
-  if(id==='daily'){ renderCriteriaForKind('daily'); renderSessions('daily'); populateSelects(); }
-  if(id==='weekly'){ renderCriteriaForKind('weekly'); renderSessions('weekly'); populateSelects(); }
-  if(id==='monthly'){ renderCriteriaForKind('monthly'); renderSessions('monthly'); populateSelects(); }
-  if(id==='attendance'){ renderAttendanceTable(); populateSelects(); }
-  if(id==='absences'){ renderAbsences(); populateSelects(); }
-  if(id==='summaryReport'){ renderSummaryReport(); populateSelects(); }
-  if(id==='fullReport') renderFullReport();
-  if(id==='settings') renderSettings();
-  if(id==='chartSection'){ renderChartPage(); }
+function isDateInRange(dateStr, start, end) {
+    if(!dateStr) return false;
+    const d = new Date(dateStr); d.setHours(0,0,0,0);
+    const s = start ? new Date(start) : null; if(s) s.setHours(0,0,0,0);
+    const e = end ? new Date(end) : null; if(e) e.setHours(0,0,0,0);
+    if(s && d < s) return false;
+    if(e && d > e) return false;
+    return true;
 }
 
-/* TEACHERS */
-function renderTeachers(){ const tbody=el('#teachersTable tbody'); if(!tbody) return; tbody.innerHTML=''; state.teachers.forEach(t=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.id)}</td><td>${escapeHtml(t.subject||'')}</td><td><button class="btn ghost editTeacher" data-id="${t.id}">تعديل</button> <button class="btn" data-id="${t.id}" data-act="delTeacher" style="background:var(--danger);color:#fff">حذف</button></td>`; tbody.appendChild(tr); }); els('.editTeacher').forEach(b=> b.addEventListener('click', e=> startEditTeacher(e.target.dataset.id))); els('[data-act="delTeacher"]').forEach(b=> b.addEventListener('click', async e=>{ const id=e.target.dataset.id; const ok = await confirmModal('هل تريد حذف المعلم وكل سجلاته؟'); if(!ok) return; deleteTeacher(id); })); }
-function addTeacher(){ const name=el('#t_name').value.trim(); const id=el('#t_id').value.trim(); const subject=el('#t_subject').value.trim(); if(!name||!id){ alert('ادخل اسم ورقم المعلم'); return; } if(state.teachers.some(t=>t.id===id)){ alert('الرقم موجود'); return; } state.teachers.push({id,name,subject}); save(); renderTeachers(); populateSelects(); el('#t_name').value=''; el('#t_id').value=''; el('#t_subject').value=''; toast('تم إضافة المعلم'); }
-function startEditTeacher(id){ const t=state.teachers.find(x=>x.id===id); if(!t) return; el('#t_name').value=t.name; el('#t_id').value=t.id; el('#t_subject').value=t.subject||''; const btn=el('#addTeacher'); btn.textContent='حفظ التعديل'; btn.onclick = ()=> saveEditTeacher(id); }
-function saveEditTeacher(id){ const t=state.teachers.find(x=>x.id===id); if(!t) return; t.name=el('#t_name').value.trim(); t.subject=el('#t_subject').value.trim(); save(); renderTeachers(); populateSelects(); el('#addTeacher').textContent='إضافة معلّم'; el('#addTeacher').onclick = addTeacher; el('#t_name').value=''; el('#t_id').value=''; el('#t_subject').value=''; toast('تم الحفظ'); }
-function deleteTeacher(id){ state.teachers = state.teachers.filter(t=>t.id!==id); state.deductions = state.deductions.filter(d=> d.teacherId !== id); state.evaluations = state.evaluations.filter(e=> e.teacherId !== id); state.attendance = state.attendance.filter(a=> a.teacherId !== id); state.absences = state.absences.filter(a=> a.teacherId !== id); save(); renderTeachers(); populateSelects(); toast('تم الحذف'); }
+window.app = {
+  deleteTeacher: (id) => { if(!confirm('حذف المعلم؟')) return; state.teachers = state.teachers.filter(t=> t.id!==id); state.deductions = state.deductions.filter(d=> d.teacherId !== id); save(); renderTeachers(); toast('تم الحذف'); },
+  deleteCriteria: (id) => { if(!confirm('حذف البند؟')) return; state.criteria = state.criteria.filter(x=> x.id !== id); state.deductions = state.deductions.filter(d=> d.criteriaId !== id); save(); renderCriteria(); toast('تم الحذف'); },
+  deleteTeacherFromSession: (sessionId, teacherId, kind) => { if(!confirm('حذف سجل هذا المعلم؟')) return; const sess = state.evaluations.find(s => s.id === sessionId); if(!sess) return; const deductionsToRemove = state.deductions.filter(d => d.teacherId === teacherId && sess.deductionIds.includes(d.id)); const idsToRemove = deductionsToRemove.map(d => d.id); state.deductions = state.deductions.filter(d => !idsToRemove.includes(d.id)); sess.deductionIds = sess.deductionIds.filter(id => !idsToRemove.includes(id)); if(sess.deductionIds.length === 0) { state.evaluations = state.evaluations.filter(s => s.id !== sessionId); } save(); renderSessions(kind); toast('تم حذف السجل'); },
+  deleteAttendance: (id) => { if(!confirm('حذف السجل؟')) return; state.attendance = state.attendance.filter(x=>x.id!==id); save(); renderAttendanceTable(); toast('تم الحذف'); },
+  deleteAbsence: (id) => { if(!confirm('حذف السجل؟')) return; state.absences = state.absences.filter(x=>x.id!==id); save(); renderAbsences(); toast('تم الحذف'); }
+};
 
-/* CRITERIA */
-function renderCriteria(){ const tbody = el('#ci_table tbody'); if(!tbody) return; tbody.innerHTML=''; (state.criteria||[]).forEach(c=>{ const tr=document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(c.name)}</td><td class="center">${c.max}</td><td>${escapeHtml(c.kind)}</td><td><button class="btn ghost editCi" data-id="${c.id}">تعديل</button> <button class="btn" data-id="${c.id}" data-act="delCi" style="background:var(--danger);color:#fff">حذف</button></td>`; tbody.appendChild(tr); }); els('.editCi').forEach(b=> b.addEventListener('click', e=> startEditCi(e.target.dataset.id))); els('[data-act="delCi"]').forEach(b=> b.addEventListener('click', async e=>{ const id=e.target.dataset.id; const ok=await confirmModal('حذف البند؟'); if(!ok) return; state.criteria = state.criteria.filter(x=> x.id!==id); save(); renderCriteria(); renderCriteriaForKind('daily'); renderCriteriaForKind('weekly'); renderCriteriaForKind('monthly'); })); }
-function addCriterion(){ const name=el('#ci_name').value.trim(); const kind=el('#ci_kind').value; let max = Number(el('#ci_max').value); if(!name) return alert('اكتب اسم البند'); if(!max || max<=0) max = 10; const id = uid('ci'); state.criteria.push({id,name,kind,max,note:''}); save(); el('#ci_name').value=''; el('#ci_max').value=10; el('#ci_kind').value='daily'; renderCriteria(); renderCriteriaForKind('daily'); renderCriteriaForKind('weekly'); renderCriteriaForKind('monthly'); populateSelects(); toast('تم إضافة البند'); }
-function startEditCi(id){ const c = state.criteria.find(x=> x.id===id); if(!c) return; el('#ci_name').value = c.name; el('#ci_max').value = c.max; el('#ci_kind').value = c.kind; const btn = el('#addCi'); btn.textContent='حفظ التعديل'; btn.onclick = ()=> saveEditCi(id); }
-function saveEditCi(id){ const c = state.criteria.find(x=> x.id===id); if(!c) return; c.name = el('#ci_name').value.trim(); c.max = Number(el('#ci_max').value) || c.max; c.kind = el('#ci_kind').value; save(); el('#addCi').textContent='➕ إضافة بند جديد'; el('#ci_name').value=''; el('#ci_max').value=10; el('#ci_kind').value='daily'; renderCriteria(); renderCriteriaForKind('daily'); renderCriteriaForKind('weekly'); renderCriteriaForKind('monthly'); populateSelects(); toast('تم تعديل البند'); }
-function restoreDefaults(){ const ok = confirm('سيتم استعادة البنود الافتراضية (لن يؤثر على المعلمين والبيانات). متابعة؟'); if(!ok) return; state.criteria = DEFAULT_CRITERIA.slice(); save(); renderCriteria(); renderCriteriaForKind('daily'); renderCriteriaForKind('weekly'); renderCriteriaForKind('monthly'); populateSelects(); toast('تم استعادة البنود الافتراضية'); }
-
-/* populate selects */
-function populateSelects(){ ['daily_teacher','weekly_teacher','monthly_teacher','attendance_teacher','absence_teacher'].forEach(id=>{ const sel=el('#'+id); if(!sel) return; const prev=sel.value; sel.innerHTML=''; const ph = document.createElement('option'); ph.value=''; ph.textContent='-- اختر --'; sel.appendChild(ph); state.teachers.forEach(t=>{ const o=document.createElement('option'); o.value=t.id; o.textContent = t.name + (t.subject?(' — '+t.subject):''); sel.appendChild(o); }); sel.value = prev; }); }
-
-/* render criteria inputs for kind */
-function renderCriteriaForKind(kind){ const wrap = el('#'+kind+'_wrap'); if(!wrap) return; wrap.innerHTML=''; const list = state.criteria.filter(c=> c.kind===kind); if(list.length===0){ wrap.innerHTML = '<div class="small">لا توجد بنود</div>'; return; } list.forEach(ci=>{ const div=document.createElement('div'); div.style.display='flex'; div.style.justifyContent='space-between'; div.style.alignItems='center'; div.style.padding='8px'; div.style.marginBottom='6px'; div.style.borderRadius='6px'; div.style.background='#fffaf0'; div.innerHTML = `<div style="flex:1"><strong>${escapeHtml(ci.name)}</strong><div class="small">الحد الأقصى: ${ci.max}</div></div><div style="display:flex;gap:8px;align-items:center"><input class="sess-input" data-id="${ci.id}" type="number" min="0" max="${ci.max}" value="0" style="width:100px"><button class="btn ghost viewDetails" data-id="${ci.id}" data-kind="${kind}">تفاصيل</button></div>`; wrap.appendChild(div); }); // bind viewDetails
-  wrap.querySelectorAll('.viewDetails').forEach(b=> b.addEventListener('click', e=>{ const sel = el('#'+e.target.dataset.kind+'_teacher'); if(!sel||!sel.value) return alert('اختر معلماً'); showDeductionDetails(sel.value, e.target.dataset.id, e.target.dataset.kind); })); }
-
-/* sessions/evaluations */
-function addSession(kind){ const sel = el('#'+kind+'_teacher'); if(!sel||!sel.value) return alert('اختر معلماً'); const teacherId = sel.value; const inputs = Array.from(document.querySelectorAll('#'+kind+'_wrap .sess-input')); const map={}; inputs.forEach(i=> map[i.dataset.id] = Number(i.value)||0); const addedIds=[]; Object.entries(map).forEach(([cid,val])=>{ if(val>0){ const rec = {id:uid('ded'), teacherId, criteriaId:cid, kind, date:new Date().toISOString(), deduction: val, note:''}; state.deductions.push(rec); addedIds.push(rec.id); } }); if(addedIds.length===0) return alert('لم تدخل أي خصم'); state.evaluations.push({id:uid('sess'), teacherId, kind, date:new Date().toISOString(), deductionIds: addedIds}); save(); renderSessions(kind); toast('تم إضافة جلسة وخصومات'); inputs.forEach(i=> i.value=0); }
-function renderSessions(kind){ const head = el('#'+kind+'_head'); const body = el('#'+kind+'_body'); if(!head||!body) return; head.innerHTML=''; body.innerHTML=''; const crits = state.criteria.filter(c=> c.kind===kind); const trh=document.createElement('tr'); trh.innerHTML = '<th>المعلم</th><th>التاريخ</th>'; crits.forEach(c=> trh.innerHTML += `<th>${escapeHtml(c.name)}</th>`); trh.innerHTML += '<th>المجموع</th><th>حذف</th>'; head.appendChild(trh); const rows = state.evaluations.filter(s=> s.kind===kind); rows.forEach(r=>{ const tr=document.createElement('tr'); const t = state.teachers.find(x=>x.id===r.teacherId) || {name:'غير معروف'}; let inner = `<td>${escapeHtml(t.name)}</td><td>${new Date(r.date).toLocaleString()}</td>`; let total=0; crits.forEach(c=>{ const totalDed = state.deductions.filter(d=> d.teacherId===r.teacherId && d.criteriaId===c.id && d.kind===kind).reduce((s,it)=> s+Number(it.deduction||0),0); const final = Math.max(0, c.max - totalDed); inner += `<td class="center">${final}<div class="small">(-${totalDed})</div></td>`; total += final; }); inner += `<td class="center">${total}</td><td class="center"><button class="btn" data-id="${r.id}" data-kind="${kind}" style="background:var(--danger);color:#fff">حذف</button></td>`; tr.innerHTML = inner; body.appendChild(tr); }); body.querySelectorAll('button[data-kind]').forEach(b=> b.addEventListener('click', async e=>{ const id=e.target.dataset.id; const ok = await confirmModal('حذف الجلسة؟'); if(!ok) return; const sess = state.evaluations.find(s=>s.id===id); if(sess && sess.deductionIds) state.deductions = state.deductions.filter(d=> !sess.deductionIds.includes(d.id)); state.evaluations = state.evaluations.filter(s=> s.id!==id); save(); renderSessions(e.target.dataset.kind); toast('تم الحذف'); })); }
-
-/* deduction details */
-function showDeductionDetails(teacherId, criteriaId, kind){ const items = state.deductions.filter(d=> d.teacherId===teacherId && d.criteriaId===criteriaId && d.kind===kind).sort((a,b)=> new Date(b.date)-new Date(a.date)); let msg = ''; if(items.length===0) msg = 'لا توجد خصومات'; else items.forEach(it=> msg += `${new Date(it.date).toLocaleString()} — ${it.deduction}\n`); alert(msg); }
-
-/* attendance */
-function saveAttendance(){ const sel=el('#attendance_teacher'); if(!sel||!sel.value) return alert('اختر معلماً'); const date=el('#att_date').value; if(!date) return alert('اختر التاريخ'); const arrival=el('#att_arrival').value; const leave=el('#att_leave').value; const officialStart = el('#official_start').value || state.official.start; const officialEnd = el('#official_end').value || state.official.end; const late = Math.max(0, minutesBetween(officialStart, arrival)); const early = Math.max(0, minutesBetween(leave, officialEnd)); const total = late + early; const steps = Math.floor(total/30); let ded = steps * 0.5; const cap = Number(el('#max_att').value) || state.official.maxAttendancePenalty || 2; if(ded>cap) ded = cap; const rec = {id:uid('att'), teacherId: sel.value, date, arrival, leave, late, early, deduction: ded}; state.attendance.push(rec); if(ded>0) state.deductions.push({id:uid('ded'), teacherId: sel.value, criteriaId:'attendance_auto', kind:'attendance', date:new Date().toISOString(), deduction: ded, note:`تأخر ${late}د انصراف ${early}د`}); save(); renderAttendanceTable(); toast('تم حفظ الحضور والخصم'); }
-function renderAttendanceTable(){ const tbody=el('#attendance_table tbody'); if(!tbody) return; tbody.innerHTML=''; state.attendance.forEach(a=>{ const t = state.teachers.find(tt=>tt.id===a.teacherId) || {name:'غير معروف'}; const tr=document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${a.date}</td><td class="center">${a.arrival}</td><td class="center">${a.leave}</td><td class="center">${a.late}</td><td class="center">${a.early}</td><td class="center">${a.deduction||0}</td><td class="center"><button class="btn ghost delAtt" data-id="${a.id}">حذف</button></td>`; tbody.appendChild(tr); }); els('.delAtt').forEach(b=> b.addEventListener('click', async e=>{ const id=e.target.dataset.id; const ok = await confirmModal('حذف سجل الحضور؟'); if(!ok) return; const rec = state.attendance.find(x=>x.id===id); if(rec){ state.deductions = state.deductions.filter(d=> !(d.teacherId===rec.teacherId && d.kind==='attendance' && d.date.slice(0,10)===new Date(rec.date).toISOString().slice(0,10))); } state.attendance = state.attendance.filter(x=> x.id!==id); save(); renderAttendanceTable(); toast('تم الحذف'); })); }
-
-/* absences */
-function bindAbsTypeChange(){ const absType = el('#abs_type'); if(!absType) return; absType.addEventListener('change', e=>{ el('#abs_penalty_wrap').style.display = e.target.value==='unexcused' ? 'block':'none'; }); }
-function saveAbsence(){ const sel=el('#absence_teacher'); if(!sel||!sel.value) return alert('اختر معلماً'); const date=el('#abs_date').value; if(!date) return alert('اختر التاريخ'); const type=el('#abs_type').value; let penalty=0; if(type==='unexcused') penalty = Number(el('#abs_penalty').value)||0; const rec = {id:uid('abs'), teacherId: sel.value, date, type, penalty}; state.absences.push(rec); if(type==='unexcused' && penalty>0) state.deductions.push({id:uid('ded'), teacherId: sel.value, criteriaId:'absence_auto', kind:'absence', date:new Date().toISOString(), deduction: penalty, note:'غياب بدون عذر'}); save(); renderAbsences(); toast('تم حفظ الغياب'); }
-function renderAbsences(){ const tbody=el('#absence_table tbody'); if(!tbody) return; tbody.innerHTML=''; state.absences.forEach(a=>{ const t= state.teachers.find(tt=>tt.id===a.teacherId) || {name:'غير معروف'}; const tr=document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${a.date}</td><td>${a.type}</td><td class="center">${a.penalty||0}</td><td class="center"><button class="btn ghost delAbs" data-id="${a.id}">حذف</button></td>`; tbody.appendChild(tr); }); els('.delAbs').forEach(b=> b.addEventListener('click', async e=>{ const id=e.target.dataset.id; const ok = await confirmModal('حذف سجل الغياب؟'); if(!ok) return; const rec = state.absences.find(x=>x.id===id); if(rec && rec.penalty>0){ state.deductions = state.deductions.filter(d=> !(d.teacherId===rec.teacherId && d.kind==='absence' && d.date.slice(0,10)===new Date(rec.date).toISOString().slice(0,10))); } state.absences = state.absences.filter(x=> x.id!==id); save(); renderAbsences(); toast('تم الحذف'); })); }
-
-/* full report */
-function renderFullReport(){ const head=el('#full_head'); const body=el('#full_body'); const foot=el('#full_foot'); if(!head) return; head.innerHTML=''; body.innerHTML=''; foot.innerHTML=''; const crits = state.criteria || []; let h = '<tr><th>المعلم</th><th>الرقم</th>'; crits.forEach(c=> h += `<th>${escapeHtml(c.name)}</th><th>مجموع خصم</th><th>ناتج</th><th>ملاحظة</th>`); h += '<th>خصم الغياب</th><th>خصم الحضور</th><th>الأداء النهائي</th></tr>'; head.innerHTML = h; state.teachers.forEach(t=>{ let row = `<tr><td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.id)}</td>`; let sumBonds=0; crits.forEach(c=>{ const items = state.deductions.filter(d=> d.teacherId===t.id && d.criteriaId===c.id && d.kind===c.kind); const totalDed = items.reduce((s,i)=> s + Number(i.deduction||0),0); const final = Math.max(0, c.max - totalDed); const note = items.length? items[items.length-1].note || '-' : '-'; row += `<td class="center">${c.max}</td><td class="center">${totalDed}</td><td class="center">${final}</td><td>${escapeHtml(note)}</td>`; sumBonds += final; }); const absenceSum = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='absence').reduce((s,i)=> s + Number(i.deduction||0),0); const attendanceSum = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='attendance').reduce((s,i)=> s + Number(i.deduction||0),0); const finalScore = Math.max(0, sumBonds - (absenceSum + attendanceSum)); row += `<td class="center">${absenceSum}</td><td class="center">${attendanceSum}</td><td class="center">${finalScore}</td></tr>`; body.innerHTML += row; }); // footer
-  const allMax = state.criteria.reduce((s,c)=> s + Number(c.max||0),0); const totalDeductions = state.deductions.reduce((s,d)=> s + Number(d.deduction||0),0); const allFinals = state.teachers.reduce((s,t)=> { const sumBonds = state.criteria.reduce((a,c)=> a + Math.max(0, c.max - state.deductions.filter(d=> d.teacherId===t.id && d.criteriaId===c.id && d.kind===c.kind).reduce((x,y)=> x + Number(y.deduction||0),0)),0); const absenceSum = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='absence').reduce((x,y)=> x + Number(y.deduction||0),0); const attendanceSum = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='attendance').reduce((x,y)=> x + Number(y.deduction||0),0); return s + Math.max(0, sumBonds - (absenceSum + attendanceSum)); },0); const tr=document.createElement('tr'); tr.className='full-gold'; tr.innerHTML = `<td colspan="${2 + (state.criteria.length*4) + 3}" style="text-align:left;padding:12px"><strong>ملخص ذهبي:</strong> عدد البنود: <strong>${state.criteria.length}</strong> | مجموع القيم القصوى: <strong>${allMax}</strong> | مجموع الخصومات الكلية: <strong>${totalDeductions}</strong> | المجموع النهائي: <strong>${allFinals}</strong></td>`; foot.appendChild(tr); }
-
-/* SUMMARY (رتّب وميّز الثلاثة الأوائل) */
-function computeTeacherSummary(){
-  const crits = state.criteria || [];
-  const totalPossible = crits.reduce((s,c)=> s + Number(c.max||0),0);
-  const rows = state.teachers.map(t=>{
-    const perCriterion = crits.map(c=>{
-      const items = state.deductions.filter(d=> d.teacherId===t.id && d.criteriaId===c.id && d.kind===c.kind);
-      const totalDed = items.reduce((s,i)=> s + Number(i.deduction||0),0);
-      const final = Math.max(0, c.max - totalDed);
-      return {id:c.id,name:c.name,max:c.max,totalDed,final,kind:c.kind};
-    });
-    const sumCriteriaFinals = perCriterion.reduce((s,it)=> s + it.final, 0);
-    const absenceSum = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='absence').reduce((s,i)=> s + Number(i.deduction||0),0);
-    const attendanceSum = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='attendance').reduce((s,i)=> s + Number(i.deduction||0),0);
-    const totalAfterPenalties = Math.max(0, sumCriteriaFinals - (absenceSum + attendanceSum));
-    const percent = totalPossible ? ( (totalAfterPenalties / totalPossible) * 100 ) : 0;
-    return {teacher: t, perCriterion, absenceSum, attendanceSum, sumCriteriaFinals, totalAfterPenalties, percent, totalPossible};
+function renderTeachers(){
+  const tbody = el('#teachersTable tbody'); if(!tbody) return; tbody.innerHTML='';
+  state.teachers.forEach(t=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.id)}</td><td>${escapeHtml(t.subject||'')}</td><td>${escapeHtml(t.email||'')}</td>
+      <td><button class="btn ghost editTeacher" data-id="${t.id}">تعديل</button> <button class="btn" style="background:var(--danger);color:#fff" onclick="app.deleteTeacher('${t.id}')">حذف</button></td>`;
+    tbody.appendChild(tr);
   });
-  return {crits, rows, totalPossible};
+  els('.editTeacher').forEach(b=> b.addEventListener('click', e=> startEditTeacher(e.currentTarget.dataset.id)));
+}
+
+function renderCriteria(){
+  const tbody = el('#ci_table tbody'); if(!tbody) return; tbody.innerHTML='';
+  (state.criteria||[]).forEach(c=>{
+    const tr = document.createElement('tr');
+    let logicText = (c.logic === 'positive') ? '<span style="color:var(--emerald)">✔ رصد حضور</span>' : '<span style="color:var(--danger)">✖ رصد مخالفة</span>';
+    tr.innerHTML = `<td>${escapeHtml(c.name)}</td><td class="center">${c.max}</td><td>${escapeHtml(c.kind)}</td><td class="center">${logicText}</td><td class="center">${c.penalty}</td>
+      <td><button class="btn ghost editCi" data-id="${c.id}">تعديل</button> <button class="btn" style="background:var(--danger);color:#fff" onclick="app.deleteCriteria('${c.id}')">حذف</button></td>`;
+    tbody.appendChild(tr);
+  });
+  els('.editCi').forEach(b=> b.addEventListener('click', e=> startEditCi(e.currentTarget.dataset.id)));
+}
+
+function renderAttendanceTable(){
+  const tbody = el('#attendance_table tbody'); if(!tbody) return; tbody.innerHTML='';
+  state.attendance.forEach(a=>{
+    const t = state.teachers.find(tt=> tt.id===a.teacherId) || {name:'?'};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${a.date}</td><td class="center">${a.arrival}</td><td class="center">${a.leave}</td><td class="center">${a.late}</td><td class="center">${a.early}</td><td class="center">${a.deduction}</td>
+      <td class="center"><button class="btn ghost" onclick="app.deleteAttendance('${a.id}')">حذف</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderAbsences(){
+  const tbody = el('#absence_table tbody'); if(!tbody) return; tbody.innerHTML='';
+  state.absences.forEach(a=>{
+    const t = state.teachers.find(tt=> tt.id===a.teacherId) || {name:'?'};
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${a.date}</td><td>${a.type==='excused'?'بعذر':'بدون عذر'}</td><td class="center">${a.penalty}</td>
+      <td class="center"><button class="btn ghost" onclick="app.deleteAbsence('${a.id}')">حذف</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderSessions(kind){
+  const headEl = el('#'+kind+'_head'); const bodyEl = el('#'+kind+'_body'); if(!headEl || !bodyEl) return;
+  headEl.innerHTML = '<tr><th>المعلم</th><th>التاريخ</th><th>البند</th><th>خصم</th><th>حذف</th></tr>'; bodyEl.innerHTML = '';
+  const rows = state.evaluations.filter(s=> s.kind===kind).sort((a,b)=> new Date(b.date) - new Date(a.date));
+  rows.forEach(sess=>{
+    if((sess.deductionIds||[]).length === 0) return;
+    const tIds = [...new Set((sess.deductionIds||[]).map(id=> { const d=state.deductions.find(x=>x.id===id); return d?d.teacherId:null; }).filter(Boolean))];
+    tIds.forEach(tid=>{
+      const t = state.teachers.find(x=> x.id===tid) || {name:'?'};
+      const deds = state.deductions.filter(d=> d.teacherId===tid && (sess.deductionIds||[]).includes(d.id));
+      const critNames = deds.map(d=> { const c=state.criteria.find(cc=>cc.id===d.criteriaId); return c?c.name:'?'; }).join(', ');
+      const total = deds.reduce((s,d)=> s + (d.deduction||0), 0);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${new Date(sess.date).toLocaleDateString('ar-EG')}</td><td>${critNames}</td><td class="center" style="color:var(--danger)">${total}</td>
+        <td class="center"><button class="btn" style="background:var(--danger);color:#fff" onclick="app.deleteTeacherFromSession('${sess.id}','${tid}','${kind}')">حذف</button></td>`;
+      bodyEl.appendChild(tr);
+    });
+  });
+}
+
+function addTeacher(){
+  const name = el('#t_name').value.trim(); const id = el('#t_id').value.trim(); 
+  const subject = el('#t_subject').value.trim(); const email = el('#t_email').value.trim();
+  if(!name||!id){ alert('ادخل البيانات'); return; }
+  if(state.teachers.some(t=>t.id===id)){ alert('الرقم موجود'); return; }
+  state.teachers.push({id,name,subject,email}); save(); renderTeachers(); populateSelects(); 
+  el('#t_name').value=''; el('#t_id').value=''; el('#t_subject').value=''; el('#t_email').value='';
+  toast('تم إضافة المعلم');
+}
+function startEditTeacher(id){
+  const t = state.teachers.find(x=> x.id===id); if(!t) return;
+  el('#t_name').value = t.name; el('#t_id').value = t.id; el('#t_subject').value = t.subject||''; el('#t_email').value = t.email||'';
+  const btn = el('#addTeacher'); btn.textContent='حفظ التعديل'; btn.onclick = ()=> saveEditTeacher(id);
+}
+function saveEditTeacher(id){
+  const t = state.teachers.find(x=> x.id===id); if(!t) return;
+  t.name = el('#t_name').value.trim(); t.subject = el('#t_subject').value.trim(); t.email = el('#t_email').value.trim();
+  save(); renderTeachers(); populateSelects(); el('#addTeacher').textContent='إضافة معلّم'; el('#addTeacher').onclick = addTeacher;
+  el('#t_name').value=''; el('#t_id').value=''; el('#t_subject').value=''; el('#t_email').value='';
+  toast('تم التعديل');
+}
+function addCriterion(){
+  const name = el('#ci_name').value.trim(); const kind = el('#ci_kind').value; let max = Number(el('#ci_max').value)||10; let penalty = Number(el('#ci_penalty').value)||1; const logic = el('#ci_logic').value; if(!name) return;
+  state.criteria.push({id:uid('ci'),name,kind,max,penalty,logic}); save(); renderCriteria(); toast('تم الإضافة');
+}
+function startEditCi(id){
+  const c = state.criteria.find(x=> x.id===id); if(!c) return;
+  el('#ci_name').value = c.name; el('#ci_max').value = c.max; el('#ci_kind').value = c.kind; el('#ci_penalty').value = c.penalty; el('#ci_logic').value = c.logic || 'negative';
+  el('#addCi').textContent='حفظ التعديل'; el('#addCi').onclick = ()=> saveEditCi(id);
+}
+function saveEditCi(id){
+  const c = state.criteria.find(x=> x.id===id); if(!c) return;
+  c.name = el('#ci_name').value.trim(); c.max = Number(el('#ci_max').value)||10; c.kind = el('#ci_kind').value; c.penalty = Number(el('#ci_penalty').value)||0; c.logic = el('#ci_logic').value;
+  save(); el('#addCi').textContent='➕ إضافة بند جديد'; el('#addCi').onclick = addCriterion; el('#ci_name').value=''; renderCriteria(); toast('تم التعديل');
+}
+function restoreDefaults(){ if(!confirm('هل أنت متأكد؟')) return; state.criteria = DEFAULT_CRITERIA.slice(); save(); renderCriteria(); toast('تمت الاستعادة'); }
+
+function buildGridForKind(kind){
+  const wrap = el('#'+kind+'_table_wrap'); if(!wrap) return; wrap.innerHTML = '';
+  const crits = (state.criteria||[]).filter(c=> c.kind===kind); const teachers = state.teachers || [];
+  if(crits.length===0){ wrap.innerHTML = '<div class="small">لا توجد بنود لهذا النوع</div>'; return; }
+  if(!uiState[kind] || !crits.find(c=> c.id === uiState[kind])) { uiState[kind] = crits[0].id; }
+  const activeCrit = crits.find(c => c.id === uiState[kind]); const isPos = (activeCrit.logic === 'positive');
+  const selectContainer = document.createElement('div'); selectContainer.className="filter-box"; selectContainer.style.display="flex"; selectContainer.style.alignItems="center"; selectContainer.style.gap="10px";
+  const label = document.createElement('label'); label.innerHTML = "<strong>اختر بند التقييم:</strong>";
+  const select = document.createElement('select'); select.style.cssText = "padding:8px; border-radius:6px; flex:1";
+  crits.forEach(c => { const option = document.createElement('option'); option.value = c.id; const logicSign = c.logic==='positive' ? '✔' : '✖'; option.textContent = `${logicSign} ${c.name} (خصم: ${c.penalty})`; if(c.id === activeCrit.id) option.selected = true; select.appendChild(option); });
+  select.addEventListener('change', (e) => { uiState[kind] = e.target.value; buildGridForKind(kind); });
+  selectContainer.appendChild(label); selectContainer.appendChild(select); wrap.appendChild(selectContainer);
+  const tbl = document.createElement('table'); tbl.className = 'table';
+  const thr = document.createElement('tr'); const actionText = isPos ? 'الحالة (حدد للحضور ✔)' : 'الحالة (حدد للمخالفة ✖)'; const color = isPos ? 'var(--emerald)' : 'var(--danger)';
+  thr.innerHTML = `<th style="width:40%">المعلم</th><th>${escapeHtml(activeCrit.name)} <span class="small" style="color:${color}">${actionText}</span></th><th style="width:15%">الخصم المتوقع</th>`;
+  tbl.appendChild(thr);
+  teachers.forEach(t=>{
+    const tr = document.createElement('tr'); const chkId = `chk_${kind}_${activeCrit.id}_${t.id}`; const chkClass = isPos ? 'chk-positive' : ''; const chkLabel = isPos ? 'حاضر / ملتزم' : 'مخالف / مقصر';
+    tr.innerHTML = `<td><strong>${escapeHtml(t.name)}</strong></td><td class="center" style="background:#fff;"><label style="cursor:pointer; display:block; padding:5px;"><input type="checkbox" class="${chkClass}" id="${chkId}" data-criteria="${activeCrit.id}" data-teacher="${t.id}" style="transform:scale(1.2);"><span style="margin-right:8px; font-size:0.9rem; color:#777">${chkLabel}</span></label></td><td class="center sum-cell" data-teacher="${t.id}" style="font-weight:bold; color:var(--danger)">0</td>`;
+    tbl.appendChild(tr);
+  });
+  wrap.appendChild(tbl);
+  wrap.querySelectorAll('input[type="checkbox"]').forEach(chk=>{ chk.addEventListener('change', ()=> updateGridSums(kind)); });
+  updateGridSums(kind);
+}
+function updateGridSums(kind){
+  const currentCritId = uiState[kind]; if(!currentCritId) return;
+  const crits = (state.criteria||[]).filter(c=> c.id === currentCritId); const activeCrit = crits[0];
+  const tbody = el('#'+kind+'_table_wrap table'); if(!tbody) return;
+  Array.from(tbody.querySelectorAll('tr')).forEach((row, idx)=>{
+    if(idx===0) return; // skip header
+    const teacherId = row.querySelector('.sum-cell').dataset.teacher; let total = 0; const chk = row.querySelector(`input[data-criteria="${activeCrit.id}"][data-teacher="${teacherId}"]`);
+    if(chk){ const isPos = (activeCrit.logic === 'positive'); if(isPos && !chk.checked) total = Number(activeCrit.penalty||0); if(!isPos && chk.checked) total = Number(activeCrit.penalty||0); }
+    const cell = row.querySelector('.sum-cell'); cell.textContent = total; cell.style.color = total>0 ? 'var(--danger)' : '#ccc';
+  });
+}
+function saveGridSession(kind){
+  const dateInput = el('#'+kind+'_date'); const dateVal = dateInput ? dateInput.value : ''; if(!dateVal){ alert('اختر تاريخ الجلسة'); return; }
+  const currentCritId = uiState[kind]; if(!currentCritId) return;
+  const activeCrit = (state.criteria||[]).find(c=> c.id === currentCritId);
+  const rows = Array.from(el('#'+kind+'_table_wrap table').querySelectorAll('tr')).slice(1);
+  const createdDedIds = [];
+  rows.forEach(row=>{
+    const teacherId = row.querySelector('.sum-cell').dataset.teacher; const chk = row.querySelector(`input`);
+    if(chk){ const isPos = (activeCrit.logic === 'positive'); let deductAmount = 0; if(isPos && !chk.checked) deductAmount = Number(activeCrit.penalty||0); if(!isPos && chk.checked) deductAmount = Number(activeCrit.penalty||0); if(deductAmount > 0){ const ded = { id: uid('ded'), teacherId, criteriaId: activeCrit.id, kind, date: new Date(dateVal).toISOString(), deduction: deductAmount, note: '' }; state.deductions.push(ded); createdDedIds.push(ded.id); } }
+  });
+  state.evaluations.push({ id: uid('sess'), kind, date: new Date(dateVal).toISOString(), deductionIds: createdDedIds });
+  save(); renderSessions(kind); rows.forEach(r=> { const c=r.querySelector('input'); if(c) c.checked=false; }); updateGridSums(kind); toast('تم الحفظ');
+}
+
+function saveAttendance(){
+  const sel = el('#attendance_teacher'); if(!sel.value) return alert('اختر معلماً');
+  const date = el('#att_date').value; if(!date) return alert('اختر التاريخ');
+  const arrival = el('#att_arrival').value; const leave = el('#att_leave').value;
+  const late = Math.max(0, minutesBetween(el('#official_start').value, arrival));
+  const early = Math.max(0, minutesBetween(leave, el('#official_end').value));
+  const total = late + early; let ded = Math.floor(total/30) * 0.5; const cap = Number(el('#max_att').value); if(ded>cap) ded=cap;
+  const rec = {id: uid('att'), teacherId: sel.value, date, arrival, leave, late, early, deduction: ded};
+  state.attendance.push(rec); if(ded>0) state.deductions.push({ id: uid('ded'), teacherId: sel.value, criteriaId: 'att_auto', kind: 'attendance', date: new Date().toISOString(), deduction: ded });
+  save(); renderAttendanceTable(); toast('تم الحفظ');
+}
+
+function bindAbsenceLogic(){
+  const sel = el('#abs_type'); const inp = el('#abs_penalty'); if(!sel || !inp) return;
+  sel.addEventListener('change', ()=>{
+    if(sel.value === 'excused'){ inp.value = 0; inp.disabled = true; inp.style.background = '#eee'; } 
+    else { inp.disabled = false; inp.style.background = '#fff'; }
+  });
+  // Trigger once
+  if(sel.value === 'excused'){ inp.value = 0; inp.disabled = true; inp.style.background = '#eee'; }
+}
+function saveAbsence(){
+  const sel = el('#absence_teacher'); if(!sel.value) return alert('اختر معلماً');
+  const date = el('#abs_date').value; if(!date) return alert('اختر التاريخ');
+  const type = el('#abs_type').value; let penalty = 0;
+  if(type === 'unexcused'){ penalty = Number(el('#abs_penalty').value) || 0; }
+  state.absences.push({ id: uid('abs'), teacherId: sel.value, date, type, penalty });
+  if(penalty > 0){ state.deductions.push({ id: uid('ded'), teacherId: sel.value, criteriaId: 'abs_auto', kind: 'absence', date: new Date().toISOString(), deduction: penalty }); }
+  save(); renderAbsences(); toast('تم الحفظ');
 }
 
 function renderSummaryReport(){
-  const head = el('#summary_head');
-  const body = el('#summary_body');
-  if(!head) return;
-  el('#reportDate').textContent = 'تاريخ التقرير: ' + (new Date()).toLocaleDateString();
+  const head = el('#summary_head'); const body = el('#summary_body'); if(!head) return;
+  const s = el('#summary_start').value; const e = el('#summary_end').value;
+  el('#reportDate').textContent = 'تاريخ: ' + new Date().toLocaleDateString();
   head.innerHTML = ''; body.innerHTML = '';
-  const {crits, rows, totalPossible} = computeTeacherSummary();
-  // header
-  let h = '<tr><th>المعلم</th><th>التخصص</th>';
-  crits.forEach(c=> h += `<th>${escapeHtml(c.name)}</th>`);
-  h += `<th>الحضور والانصراف</th><th>الغياب</th><th>الإجمالي بعد الخصم</th><th>النسبة المئوية</th></tr>`;
-  head.innerHTML = h;
-  // ترتيب تنازلي حسب totalAfterPenalties
-  const sorted = rows.slice().sort((a,b)=> b.totalAfterPenalties - a.totalAfterPenalties);
-  sorted.forEach((r, index)=>{
-    let bg = '';
-    if(index === 0) bg = 'style="background:#fff6cc"'; // ذهبي
-    else if(index === 1) bg = 'style="background:#f0f0f0"'; // فضي
-    else if(index === 2) bg = 'style="background:#ffe0b3"'; // برونزي
-    let row = `<tr ${bg}><td>${escapeHtml(r.teacher.name)}</td><td>${escapeHtml(r.teacher.subject||'-')}</td>`;
-    r.perCriterion.forEach(p=> row += `<td class="center">${p.final}<div class="small">(-${p.totalDed})</div></td>`);
-    row += `<td class="center">${r.attendanceSum}</td><td class="center">${r.absenceSum}</td>`;
-    row += `<td class="center">${r.totalAfterPenalties}</td><td class="center">${r.percent.toFixed(1)}%</td></tr>`;
-    body.innerHTML += row;
+  const crits = state.criteria;
+  let h = '<tr><th>المعلم</th><th>التخصص</th>'; crits.forEach(c=> h += `<th>${escapeHtml(c.name)}</th>`); h += `<th>الحضور</th><th>الغياب</th><th>الناتج</th><th>%</th></tr>`; head.innerHTML = h;
+  const rows = state.teachers.map(t=>{
+    let max = 0; let cur = 0;
+    const cells = crits.map(c=>{
+      max += c.max;
+      const deds = state.deductions.filter(d=> d.teacherId===t.id && d.criteriaId===c.id && isDateInRange(d.date,s,e));
+      const sum = deds.reduce((a,b)=>a+b.deduction,0);
+      const final = Math.max(0, c.max - sum); cur += final;
+      return `<td class="center">${final} <span class="small">(-${sum})</span></td>`;
+    });
+    const att = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='attendance' && isDateInRange(d.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+    const abs = state.deductions.filter(d=> d.teacherId===t.id && d.kind==='absence' && isDateInRange(d.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+    const final = Math.max(0, cur - (att+abs));
+    const pct = max ? ((final/max)*100).toFixed(1) : 0;
+    return { t, html: cells.join(''), att, abs, final, pct };
   });
-  const bestEl = el('#bestTeacher');
-  if(bestEl){
-    if(sorted.length===0){ bestEl.style.display='none'; }
-    else { const best = sorted[0]; bestEl.style.display='block'; bestEl.innerHTML = `🏅 أفضل معلم: <strong>${escapeHtml(best.teacher.name)}</strong> — نتيجة نهائية: <strong>${best.totalAfterPenalties}</strong> — (${best.percent.toFixed(1)}%)`; }
-  }
-}
-
-/* CHART */
-let chartInstance = null;
-function renderChartPage(){
-  el('#chartDate').textContent = 'تاريخ: ' + (new Date()).toLocaleDateString();
-  const {rows, totalPossible} = computeTeacherSummary();
-  const labels = rows.map(r=> r.teacher.name);
-  const data = rows.map(r=> r.totalAfterPenalties);
-  const ctx = document.getElementById('teachersChart') && document.getElementById('teachersChart').getContext('2d');
-  if(!ctx) return;
-  if(chartInstance) chartInstance.destroy();
-  chartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{
-        label: 'النتيجة النهائية بعد الخصم',
-        data,
-        backgroundColor: labels.map((_,i)=> 'rgba(246,180,88,0.95)'),
-        borderColor: labels.map((_,i)=> 'rgba(255,138,0,0.95)'),
-        borderWidth: 1
-      }]
-    },
-    options: {
-      indexAxis: 'x',
-      responsive:true,
-      plugins:{
-        legend:{display:false},
-        tooltip:{callbacks:{ label: (ctx) => {
-          const val = ctx.parsed.y ?? ctx.parsed;
-          const percent = totalPossible ? ((val/totalPossible)*100).toFixed(1) + '%' : '-';
-          return ` ${val} — ${percent}`;
-        }}},
-        datalabels:{
-          color:'#3b2300',
-          anchor:'end',
-          align:'start',
-          formatter: (value, context) => {
-            const percent = totalPossible ? ((value/totalPossible)*100).toFixed(1) + '%' : '';
-            return value + (percent ? ('\n' + percent) : '');
-          },
-          font: { weight: '700' }
-        }
-      },
-      scales:{
-        y:{ beginAtZero:true, title:{display:true, text:'الدرجات'} }
-      }
-    },
-    plugins: [ChartDataLabels]
+  rows.sort((a,b)=> b.final - a.final).forEach((r,i)=>{
+    body.innerHTML += `<tr style="background:${i<3?'#fff6cc':''}"><td>${escapeHtml(r.t.name)}</td><td>${escapeHtml(r.t.subject||'-')}</td>${r.html}<td class="center">${r.att}</td><td class="center">${r.abs}</td><td class="center" style="font-weight:bold">${r.final}</td><td class="center">${r.pct}%</td></tr>`;
   });
-  els('.nav-btn').forEach(x=>x.classList.remove('active'));
-  els('.screen').forEach(s=> s.style.display='none');
-  el('#chartSection').style.display = 'block';
-  window.scrollTo({ top: el('#chartSection').offsetTop - 10, behavior: 'smooth' });
 }
 
-/* EXPORTS (Excel/PDF) */
-function exportSummaryToExcel(){
-  const computed = computeTeacherSummary();
-  const wb = XLSX.utils.book_new();
-  const headers = ['المعلم','التخصص', ...computed.crits.map(c=> c.name), 'الحضور والانصراف','الغياب','الإجمالي بعد الخصم','النسبة (%)'];
-  const aoa = [headers];
-  computed.rows.forEach(r=>{
-    const row = [r.teacher.name, r.teacher.subject || '-'];
-    r.perCriterion.forEach(p=> row.push(p.final));
-    row.push(r.attendanceSum, r.absenceSum, r.totalAfterPenalties, r.percent.toFixed(1));
-    aoa.push(row);
+function renderFullReport(){
+  const head = el('#full_head'); const body = el('#full_body');
+  const s = el('#full_start').value; const e = el('#full_end').value;
+  let h = '<tr><th>المعلم</th>'; state.criteria.forEach(c=> h+=`<th>${c.name}</th>`); h += '<th>الناتج</th></tr>'; head.innerHTML=h; body.innerHTML='';
+  state.teachers.forEach(t=>{
+     let row = `<tr><td>${escapeHtml(t.name)}</td>`; let tot = 0;
+     state.criteria.forEach(c=>{
+        const ded = state.deductions.filter(d=> d.teacherId===t.id && d.criteriaId===c.id && isDateInRange(d.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+        const val = Math.max(0, c.max - ded); tot += val; row += `<td class="center">${val}</td>`;
+     });
+     const other = state.deductions.filter(d=> d.teacherId===t.id && (d.kind==='attendance'||d.kind==='absence') && isDateInRange(d.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+     row += `<td class="center"><strong>${Math.max(0, tot - other)}</strong></td></tr>`; body.innerHTML += row;
   });
-  const ws = XLSX.utils.aoa_to_sheet(aoa);
-  XLSX.utils.book_append_sheet(wb, ws, 'التقرير المختصر');
-  XLSX.writeFile(wb, 'summary_report.xlsx');
-  toast('تم تنزيل ملف Excel');
 }
 
-async function exportSummaryToPDF(){
-  const elToPrint = el('#summaryReport');
-  if(!elToPrint) return;
-  const prevDisplay = elToPrint.style.display;
-  elToPrint.style.display = 'block';
-  const clone = elToPrint.cloneNode(true);
-  clone.style.width = '1000px';
-  clone.style.padding = '20px';
-  clone.querySelectorAll('button').forEach(b=> b.remove());
-  document.body.appendChild(clone);
-  const canvas = await html2canvas(clone, {scale:2});
-  const imgData = canvas.toDataURL('image/png');
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({orientation:'portrait', unit:'pt', format:'a4'});
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const imgProps = pdf.getImageProperties(imgData);
-  const imgW = pageWidth - 40;
-  const imgH = (imgProps.height * imgW) / imgProps.width;
-  pdf.addImage(imgData, 'PNG', 20, 20, imgW, imgH);
-  pdf.save('summary_report.pdf');
-  document.body.removeChild(clone);
-  elToPrint.style.display = prevDisplay;
-  toast('تم تنزيل ملف PDF');
+function generateTeacherHtmlString(teacher, start, end){
+  let max=0, ded=0;
+  let details = '';
+  const tid = teacher.id;
+  
+  state.criteria.forEach(c=>{
+    max += c.max;
+    const d = state.deductions.filter(x=>x.teacherId===tid && x.criteriaId===c.id && isDateInRange(x.date,start,end)).reduce((a,b)=>a+b.deduction,0);
+    ded += d; 
+    details += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:8px 0;"><span>${c.name}</span><span>${Math.max(0, c.max-d)} / ${c.max}</span></div>`;
+  });
+  
+  const abs = state.deductions.filter(x=>x.teacherId===tid && (x.kind==='attendance'||x.kind==='absence') && isDateInRange(x.date,start,end)).reduce((a,b)=>a+b.deduction,0);
+  const final = Math.max(0, max - ded - abs); 
+  const pct = max ? ((final/max)*100).toFixed(1) : 0;
+  
+  const attList = state.attendance.filter(a=>a.teacherId===tid && isDateInRange(a.date,start,end)).map(a=>`<div>${a.date}: ${a.arrival}-${a.leave} (-${a.deduction})</div>`).join('') || '-';
+  const absList = state.absences.filter(a=>a.teacherId===tid && isDateInRange(a.date,start,end)).map(a=>`<div>${a.date}: ${a.type} (-${a.penalty})</div>`).join('') || '-';
+
+  return `
+    <div class="report-page" style="page-break-after:always; margin-bottom:30px; border-bottom:2px dashed #ccc; padding-bottom:20px;">
+      <div class="report-header">
+        <div>
+          <!-- Title Removed in Print -->
+          <div class="report-title" style="font-size:1.8rem;font-weight:bold">${escapeHtml(teacher.name)}</div>
+          <div class="muted" style="font-size:1.1rem; margin:4px 0;">
+            🆔 ${escapeHtml(teacher.id)} | 📚 ${escapeHtml(teacher.subject||'')}
+            ${teacher.email ? `<br><span style="color:#198754;font-size:0.95rem;">📧 ${escapeHtml(teacher.email)}</span>` : '<br><span style="color:#999;font-size:0.85rem;">(لا يوجد بريد إلكتروني)</span>'}
+          </div>
+          <div class="muted small" style="margin-top:5px; font-weight:bold">${(start||end) ? ('من '+start+' إلى '+end) : 'كل الفترات'}</div>
+        </div>
+        <div class="kpi" style="display:flex;gap:15px">
+           <div class="card-kpi"><div>${final}</div><small>الدرجة</small></div>
+           <div class="card-kpi"><div>${pct}%</div><small>النسبة</small></div>
+           <div class="card-kpi"><div>${abs}</div><small>خصم غياب</small></div>
+        </div>
+      </div>
+      <div class="section"><h4>تفاصيل الأداء</h4>${details}</div>
+      <div class="section"><h4>الحضور</h4>${attList}</div>
+      <div class="section"><h4>الغياب</h4>${absList}</div>
+    </div>
+  `;
 }
 
-/* modal confirm */
-function confirmModal(msg){ return new Promise(res=>{ const md=document.getElementById('confirmModal'); if(!md) return res(false); document.getElementById('modalMessage').textContent=msg; md.style.display='flex'; const ok=document.getElementById('modalOk'), cancel=document.getElementById('modalCancel'); function cleanup(){ md.style.display='none'; ok.removeEventListener('click',onok); cancel.removeEventListener('click',oncancel); } function onok(){ cleanup(); res(true); } function oncancel(){ cleanup(); res(false); } ok.addEventListener('click', onok); cancel.addEventListener('click', oncancel); }); }
-
-/* backup restore reset */
-function doBackup(){ const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='index26_backup.json'; a.click(); URL.revokeObjectURL(url); toast('تم تنزيل النسخة الاحتياطية'); }
-function doRestore(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json'; inp.onchange = e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload = ev=>{ try{ const obj = JSON.parse(ev.target.result); if(obj && Array.isArray(obj.teachers)){ state = obj; save(); location.reload(); } else alert('ملف غير صالح'); }catch(err){ alert('خطأ في الملف'); } }; r.readAsText(f); }; inp.click(); }
-async function doReset(){ const ok = await confirmModal('سيتم مسح كل البيانات. موافق؟'); if(!ok) return; state = {teachers:[], criteria: DEFAULT_CRITERIA.slice(), evaluations:[], deductions:[], attendance:[], absences:[], official:{start:'07:00', end:'13:25', maxAttendancePenalty:2}, ui:{sound:true}}; save(); location.reload(); }
-
-/* IMPORT Excel/CSV */
-function importTeachersFile(file){
-  const name = (file.name || '').toLowerCase();
-  if(name.endsWith('.csv')){
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      // parse CSV using XLSX
-      const workbook = XLSX.read(e.target.result, {type:'string', raw:true});
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      processSheetRows(sheet);
-    };
-    reader.readAsText(file, 'utf-8');
+function renderTeacherReport(tid){
+  const t = state.teachers.find(x=>x.id===tid); if(!t) return;
+  const s = el('#report_start').value; const e = el('#report_end').value;
+  
+  // LIVE VIEW
+  el('#r_teacher_name').textContent = t.name; 
+  let metaHtml = `<div>🆔 ${escapeHtml(t.id)} | 📚 ${escapeHtml(t.subject||'غير محدد')}</div>`;
+  if(t.email){
+      metaHtml += `<div style="margin-top:6px; color:#198754; font-weight:bold; font-size:1rem;">📧 ${escapeHtml(t.email)}</div>`;
   } else {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      processSheetRows(sheet);
-    };
-    reader.readAsArrayBuffer(file);
+      metaHtml += `<div style="margin-top:6px; color:#999; font-size:0.85rem;">(لا يوجد بريد إلكتروني مسجل)</div>`;
   }
+  el('#r_teacher_meta').innerHTML = metaHtml;
+  el('#r_period_info').textContent = (s||e) ? `من ${s} إلى ${e}` : 'كل الفترات';
+  
+  let max=0, ded=0; let details = '';
+  state.criteria.forEach(c=>{
+    max += c.max;
+    const d = state.deductions.filter(x=>x.teacherId===tid && x.criteriaId===c.id && isDateInRange(x.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+    ded += d; details += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:5px;"><span>${c.name}</span><span>${Math.max(0, c.max-d)} / ${c.max}</span></div>`;
+  });
+  const abs = state.deductions.filter(x=>x.teacherId===tid && (x.kind==='attendance'||x.kind==='absence') && isDateInRange(x.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+  const final = Math.max(0, max - ded - abs); const pct = max ? ((final/max)*100).toFixed(1) : 0;
+  
+  el('#r_kpis').innerHTML = `<div class="card-kpi"><div>${final}</div><small>الدرجة</small></div><div class="card-kpi"><div>${pct}%</div><small>النسبة</small></div><div class="card-kpi"><div>${abs}</div><small>خصم غياب/تأخر</small></div>`;
+  el('#r_details_tables').innerHTML = details;
+  
+  const attList = state.attendance.filter(a=>a.teacherId===tid && isDateInRange(a.date,s,e)).map(a=>`<div>${a.date}: ${a.arrival}-${a.leave} (-${a.deduction})</div>`).join('');
+  el('#r_attendance_table').innerHTML = attList || '-';
+  const absList = state.absences.filter(a=>a.teacherId===tid && isDateInRange(a.date,s,e)).map(a=>`<div>${a.date}: ${a.type} (-${a.penalty})</div>`).join('');
+  el('#r_absence_table').innerHTML = absList || '-';
+  
+  el('#reportContainer').style.display='block';
 }
 
-function processSheetRows(sheet){
-  if(!sheet){ alert('الملف فارغ أو غير صالح'); return; }
-  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-  if(!rows || rows.length===0){ alert('الملف لا يحتوي على بيانات'); return; }
-  const headers = rows[0].map(h => String(h||'').trim());
-  const nameIdx = headers.findIndex(h => ['الاسم','name'].includes(h.toLowerCase()));
-  const idIdx = headers.findIndex(h => ['الرقم','id','رقم'].includes(h.toLowerCase()));
-  const subjIdx = headers.findIndex(h => ['المادة','subject','المواد'].includes(h.toLowerCase()));
-  if(nameIdx===-1 || idIdx===-1){
-    alert('يجب أن يحتوي الملف على عمودين على الأقل: الاسم والرقم (أسماء الأعمدة: الاسم، الرقم، المادة)');
-    return;
-  }
-  let added = 0, skipped = 0;
-  for(let i=1;i<rows.length;i++){
-    const r = rows[i];
-    if(!r) continue;
-    const name = (r[nameIdx] || '').toString().trim();
-    const id = (r[idIdx] || '').toString().trim();
-    const subj = subjIdx!==-1 ? (r[subjIdx] || '').toString().trim() : '';
-    if(!name || !id){ skipped++; continue; }
-    if(state.teachers.some(t=> String(t.id).trim() === String(id).trim())){ skipped++; continue; }
-    state.teachers.push({id:String(id), name, subject: subj});
-    added++;
-  }
-  save();
-  renderTeachers();
-  populateSelects();
-  toast(`تم استيراد ${added} معلم — تم تخطي ${skipped} سجلاً`);
+function printAllTeachers(){
+  const s = el('#report_start').value; const e = el('#report_end').value;
+  let fullHtml = '';
+  state.teachers.forEach(t => {
+      fullHtml += generateTeacherHtmlString(t, s, e);
+  });
+  
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>تقرير مجمع</title><style>
+    body{font-family:'Cairo',sans-serif; direction:rtl; padding:20px;}
+    .report-header{display:flex;justify-content:space-between;border-bottom:3px solid #198754;padding-bottom:15px;margin-bottom:20px;align-items:flex-end;}
+    .kpi{display:flex;gap:15px;}
+    .card-kpi{background:#f4f9f6;padding:10px;border-radius:8px;text-align:center;border:1px solid #ccc;min-width:100px;}
+    .section h4{border-right:4px solid #198754;padding-right:10px;margin:15px 0 10px 0;font-size:1.1rem;}
+    @media print { .report-page { page-break-after: always; } }
+  </style></head><body>${fullHtml}</body></html>`);
+  win.document.close();
+  setTimeout(()=> { win.focus(); win.print(); }, 500);
 }
 
-/* init & bindings */
-function init(){
-  load();
-  if(!state.criteria || state.criteria.length===0) state.criteria = DEFAULT_CRITERIA.slice();
-  bindNav();
-  // basic bindings
-  el('#addTeacher') && el('#addTeacher').addEventListener('click', addTeacher);
-  el('#addCi') && el('#addCi').addEventListener('click', addCriterion);
-  el('#restoreDefaults') && el('#restoreDefaults').addEventListener('click', restoreDefaults);
-  el('#saveDaily') && el('#saveDaily').addEventListener('click', ()=> addSession('daily'));
-  el('#saveWeekly') && el('#saveWeekly').addEventListener('click', ()=> addSession('weekly'));
-  el('#saveMonthly') && el('#saveMonthly').addEventListener('click', ()=> addSession('monthly'));
-  el('#saveAttendance') && el('#saveAttendance').addEventListener('click', saveAttendance);
-  el('#clearAttendance') && el('#clearAttendance').addEventListener('click', async ()=>{ const ok=await confirmModal('مسح سجلات الحضور؟'); if(!ok) return; state.attendance=[]; state.deductions = state.deductions.filter(d=> d.kind!=='attendance'); save(); renderAttendanceTable(); });
-  el('#saveAbsence') && el('#saveAbsence').addEventListener('click', saveAbsence);
-  el('#clearAbsence') && el('#clearAbsence').addEventListener('click', async ()=>{ const ok=await confirmModal('مسح سجلات الغياب؟'); if(!ok) return; state.absences=[]; state.deductions = state.deductions.filter(d=> d.kind!=='absence'); save(); renderAbsences(); });
-  el('#backup') && el('#backup').addEventListener('click', doBackup);
-  el('#backupTop') && el('#backupTop').addEventListener('click', doBackup);
-  el('#restore') && el('#restore').addEventListener('click', doRestore);
-  el('#printFull') && el('#printFull').addEventListener('click', ()=> window.print());
-  el('#resetAll') && el('#resetAll').addEventListener('click', doReset);
-  el('#official_start') && el('#official_start').addEventListener('change', e=>{ state.official.start = e.target.value; save(); });
-  el('#official_end') && el('#official_end').addEventListener('change', e=>{ state.official.end = e.target.value; save(); });
-  el('#max_att') && el('#max_att').addEventListener('change', e=>{ state.official.maxAttendancePenalty = Number(e.target.value)||2; save(); toast('تم حفظ الإعداد'); });
+function exportSingleTeacherToExcel(){
+  const tid = el('#report_teacher_select').value;
+  if(!tid) return alert('الرجاء اختيار معلم أولاً');
+  const t = state.teachers.find(x=>x.id===tid);
+  const s = el('#report_start').value;
+  const e = el('#report_end').value;
+  generateAndSaveExcel(t, s, e);
+}
 
-  // summary bindings
-  el('#exportExcel') && el('#exportExcel').addEventListener('click', exportSummaryToExcel);
-  el('#exportPdf') && el('#exportPdf').addEventListener('click', ()=> exportSummaryToPDF().catch(e=> { console.error(e); alert('خطأ أثناء إنشاء PDF'); }));
-  el('#showChart') && el('#showChart').addEventListener('click', ()=> { renderChartPage(); });
-  el('#backToSummary') && el('#backToSummary').addEventListener('click', ()=> { show('summaryReport'); window.scrollTo({top:0, behavior: 'smooth'}); });
+function exportAllTeachersToExcel(){
+  const s = el('#report_start').value;
+  const e = el('#report_end').value;
+  
+  // Create a new workbook
+  const wb = XLSX.utils.book_new();
+  
+  state.teachers.forEach((t) => {
+      // Get data for this specific teacher
+      const teacherData = getTeacherExcelRows(t, s, e);
+      // Create a sheet
+      const ws = XLSX.utils.aoa_to_sheet(teacherData);
+      
+      // Sanitize sheet name
+      // Excel sheet names cannot contain: [ ] * / \ ? and max 31 chars
+      let sheetName = t.name.replace(/[\[\]\*\/\\\?]/g, '').substring(0, 30) || "Teacher";
+      
+      // Handle duplicate names
+      let counter = 1;
+      let originalName = sheetName;
+      while(wb.Sheets[sheetName]) {
+          sheetName = (originalName + "_" + counter).substring(0,30);
+          counter++;
+      }
 
-  // IMPORT bindings (Excel/CSV)
-  el('#btnImportFile') && el('#btnImportFile').addEventListener('click', ()=> el('#importFile').click());
-  el('#importFile') && el('#importFile').addEventListener('change', e=> {
-    const f = e.target.files[0];
-    if(!f) return;
-    importTeachersFile(f);
-    e.target.value = '';
+      // Append sheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
   });
 
-  // other binds
-  bindAbsTypeChange();
+  if(wb.SheetNames.length === 0) return alert("لا يوجد معلمين");
 
-  // initial render
-  renderTeachers(); renderCriteria(); renderCriteriaForKind('daily'); renderCriteriaForKind('weekly'); renderCriteriaForKind('monthly');
-  populateSelects();
-  renderSessions('daily'); renderSessions('weekly'); renderSessions('monthly');
-  renderAttendanceTable(); renderAbsences(); renderFullReport(); renderSettings();
-
-  // default screen
-  const navBtns = els('.nav-btn');
-  navBtns.forEach(b=> b.classList.remove('active'));
-  const first = document.querySelector('.nav-btn[data-screen="teachers"]');
-  if(first) first.classList.add('active');
-  show('teachers');
-
-  toast('الإصدار 1 جاهز — تم تصحيح السكربت');
+  // Save file
+  XLSX.writeFile(wb, `تقرير_جميع_المعلمين_مفصل.xlsx`);
 }
 
-function renderSettings(){ if(!el('#official_start')) return; el('#official_start').value = state.official.start || '07:00'; el('#official_end').value = state.official.end || '13:25'; el('#max_att').value = state.official.maxAttendancePenalty || 2; }
+// Helper: Calculate data for one teacher and return array of arrays (rows)
+function getTeacherExcelRows(t, s, e) {
+  let max=0, ded=0;
+  const detRows = [];
+  state.criteria.forEach(c=>{
+    max += c.max;
+    const d = state.deductions.filter(x=>x.teacherId===t.id && x.criteriaId===c.id && isDateInRange(x.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+    ded += d;
+    detRows.push([c.name, c.max, d, Math.max(0, c.max-d)]);
+  });
+  
+  const absDed = state.deductions.filter(x=>x.teacherId===t.id && (x.kind==='attendance'||x.kind==='absence') && isDateInRange(x.date,s,e)).reduce((a,b)=>a+b.deduction,0);
+  const final = Math.max(0, max - ded - absDed);
+  const pct = max ? ((final/max)*100).toFixed(1) : 0;
 
-document.addEventListener('DOMContentLoaded',init);
-})(); 
+  const data = [];
+  data.push(["تقرير المعلم المفصل"]);
+  data.push(["الاسم", t.name]);
+  data.push(["الرقم", t.id]);
+  data.push(["المادة", t.subject]);
+  data.push(["الإيميل", t.email]);
+  data.push(["الفترة", (s||e) ? `من ${s} إلى ${e}` : 'كل الفترات']);
+  data.push([]); 
+
+  data.push(["الخلاصة"]);
+  data.push(["الدرجة النهائية", "النسبة المئوية %", "خصم الحضور والغياب"]);
+  data.push([final, pct + "%", absDed]);
+  data.push([]);
+
+  data.push(["تفاصيل بنود التقييم"]);
+  data.push(["البند", "الحد الأقصى", "الخصم المرصود", "الدرجة المستحقة"]);
+  detRows.forEach(r => data.push(r));
+  data.push([]);
+
+  data.push(["سجل الحضور والانصراف"]);
+  data.push(["التاريخ", "وقت الحضور", "وقت الانصراف", "الخصم"]);
+  const atts = state.attendance.filter(a=>a.teacherId===t.id && isDateInRange(a.date,s,e));
+  if(atts.length){
+      atts.forEach(a => data.push([a.date, a.arrival, a.leave, a.deduction]));
+  } else {
+      data.push(["لا يوجد سجلات"]);
+  }
+  data.push([]);
+
+  data.push(["سجل الغياب"]);
+  data.push(["التاريخ", "النوع", "الخصم"]);
+  const abss = state.absences.filter(a=>a.teacherId===t.id && isDateInRange(a.date,s,e));
+  if(abss.length){
+      abss.forEach(a => data.push([a.date, (a.type==='excused'?'بعذر':'بدون عذر'), a.penalty]));
+  } else {
+      data.push(["لا يوجد غياب"]);
+  }
+  
+  return data;
+}
+
+function generateAndSaveExcel(t, s, e) {
+    const data = getTeacherExcelRows(t, s, e);
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "التقرير");
+    XLSX.writeFile(wb, `تقرير_${t.name.replace(/\s/g,'_')}.xlsx`);
+}
+
+function populateSelects(){
+  ['attendance_teacher','absence_teacher','report_teacher_select'].forEach(id=>{
+    const sel=el('#'+id); if(!sel) return; sel.innerHTML='<option value="">-- اختر --</option>';
+    state.teachers.forEach(t=> { const o=document.createElement('option'); o.value=t.id; o.textContent=t.name; sel.appendChild(o); });
+  });
+}
+function importTeachersFile(file){
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, {type:'array'});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, {header:1});
+    let added=0;
+    
+    const headers = rows[0] || [];
+    let emailIdx = -1;
+    rows[0].forEach((h, i) => {
+        if(typeof h === 'string' && (h.includes('email') || h.includes('إيميل') || h.includes('بريد'))) emailIdx = i;
+    });
+
+    rows.slice(1).forEach(r=>{
+       const name=r[0], id=r[1], sub=r[2];
+       let email = '';
+       if(emailIdx > -1) email = r[emailIdx];
+       if(name && id && !state.teachers.some(t=>t.id==id)){ 
+           state.teachers.push({id:String(id), name, subject:sub, email}); 
+           added++; 
+       }
+    });
+    save(); renderTeachers(); populateSelects(); toast(`تم استيراد ${added} معلم`);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function init(){
+  el('#doLogin').onclick = attemptLogin;
+  el('#logoutBtn').onclick = doLogout;
+  el('#login_pass').addEventListener("keypress", function(event) { if (event.key === "Enter") { event.preventDefault(); el("#doLogin").click(); } });
+
+  load(); bindNav(); bindAbsenceLogic();
+  el('#addTeacher').onclick = addTeacher;
+  el('#addCi').onclick = addCriterion;
+  el('#saveDaily').onclick = ()=> saveGridSession('daily');
+  el('#saveWeekly').onclick = ()=> saveGridSession('weekly');
+  el('#saveMonthly').onclick = ()=> saveGridSession('monthly');
+  el('#saveAttendance').onclick = saveAttendance;
+  el('#saveAbsence').onclick = saveAbsence;
+  el('#clearAttendance').onclick = async()=>{if(confirm('مسح الكل؟')){ state.attendance=[]; save(); renderAttendanceTable(); }};
+  el('#clearAbsence').onclick = async()=>{if(confirm('مسح الكل؟')){ state.absences=[]; save(); renderAbsences(); }};
+  
+  el('#showReport').onclick = ()=> renderTeacherReport(el('#report_teacher_select').value);
+  el('#btnFilterSummary').onclick = renderSummaryReport;
+  el('#btnFilterFull').onclick = renderFullReport;
+  el('#printReport').onclick = ()=> { renderTeacherReport(el('#report_teacher_select').value); window.print(); };
+  el('#printFull').onclick = ()=> window.print();
+  el('#printAllReports').onclick = printAllTeachers;
+  el('#exportTeacherExcel').onclick = exportSingleTeacherToExcel;
+  el('#exportAllExcel').onclick = exportAllTeachersToExcel; // NEW BUTTON BINDING
+  
+  el('#backup').onclick = ()=> { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(state)],{type:'application/json'})); a.download='backup.json'; a.click(); };
+  el('#backupTop').onclick = el('#backup').onclick;
+  el('#restore').onclick = () => el('#restoreFile').click();
+  el('#restoreFile').onchange = (e) => {
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        try { state = JSON.parse(ev.target.result); save(); alert('تم الاستعادة'); location.reload(); } catch(err) { alert('ملف خاطئ'); }
+    };
+    reader.readAsText(file);
+  };
+  el('#restoreDefaults').onclick = restoreDefaults;
+  el('#btnImportFile').onclick = ()=> el('#importFile').click();
+  el('#importFile').onchange = e=> importTeachersFile(e.target.files[0]);
+  el('#resetAll').onclick = async()=>{ if(confirm('تصفير شامل؟')){ localStorage.removeItem(STORAGE); location.reload(); } };
+  
+  renderTeachers(); renderCriteria(); populateSelects();
+  el('.nav-btn[data-screen="teachers"]').classList.add('active'); el('#teachers').style.display='block';
+}
+
+function attemptLogin(){
+  const u = el('#login_user').value; const p = el('#login_pass').value;
+  if(u === ADMIN_USER && p === ADMIN_PASS){ el('#loginScreen').style.display = 'none'; el('#appContainer').style.display = 'block'; } else { el('#loginError').style.display = 'block'; }
+}
+function doLogout(){ el('#appContainer').style.display = 'none'; el('#loginScreen').style.display = 'flex'; el('#login_user').value = ''; el('#login_pass').value = ''; el('#loginError').style.display = 'none'; }
+function bindNav(){ els('.nav-btn').forEach(b=> b.addEventListener('click', ()=>{ els('.nav-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); els('.screen').forEach(s=>s.style.display='none'); el('#'+b.dataset.screen).style.display='block'; if(['daily','weekly','monthly'].includes(b.dataset.screen)) { buildGridForKind(b.dataset.screen); renderSessions(b.dataset.screen); } if(b.dataset.screen==='summaryReport') renderSummaryReport(); if(b.dataset.screen==='fullReport') renderFullReport(); })); }
+
+document.addEventListener('DOMContentLoaded', init);
+})();
 </script>
-
 </body>
 </html>
