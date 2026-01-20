@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>نظام تقييم المعلمين — (Excel أوراق منفصلة)</title>
+<title>نظام تقييم المعلمين — (تقرير حسب البند)</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -118,7 +118,8 @@
     <button class="nav-btn" data-screen="monthly">التقييم الشهري</button>
     <button class="nav-btn" data-screen="attendance">الحضور</button>
     <button class="nav-btn" data-screen="absences">الغياب</button>
-    <button class="nav-btn" data-screen="summaryReport">📊 التقرير المختصر</button>
+    <button class="nav-btn" data-screen="criteriaReport">📊 تقرير حسب البند</button>
+    <button class="nav-btn" data-screen="summaryReport">التقرير المختصر</button>
     <button class="nav-btn" data-screen="fullReport">التقرير الشامل</button>
     <button class="nav-btn" data-screen="settings">الإعدادات</button>
     <button class="nav-btn" data-screen="teacherReport">📄 تقرير المعلم المفصّل</button>
@@ -127,7 +128,6 @@
   <!-- Teachers -->
   <section id="teachers" class="card screen" style="display:none">
     <h3>المعلمين</h3>
-    
     <div class="row">
       <div><label class="small">الاسم</label><input id="t_name"></div>
       <div><label class="small">الرقم</label><input id="t_id"></div>
@@ -136,7 +136,6 @@
       <div><label class="small">المادة</label><input id="t_subject"></div>
       <div><label class="small">الإيميل</label><input id="t_email" placeholder="example@mail.com"></div>
     </div>
-
     <div style="margin-top:8px;display:flex;gap:8px">
       <button id="addTeacher" class="btn">إضافة معلّم</button>
       <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none">
@@ -177,8 +176,19 @@
     <h3>التقييم اليومي</h3>
     <div class="row" style="margin-top:8px; margin-bottom:12px"><div><label class="small">التاريخ</label><input id="daily_date" type="date"></div></div>
     <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px;"><div id="daily_table_wrap"></div></div>
-    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;"><button id="saveDaily" class="btn">💾 حفظ التقييم</button></div>
-    <div style="margin-top:20px"><h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة (اليومية)</h4><table class="table" id="daily_sessions_table"><thead id="daily_head"></thead><tbody id="daily_body"></tbody></table></div>
+    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;">
+      <button id="saveDaily" class="btn">💾 حفظ التقييم</button>
+      <button onclick="window.app.printCurrentGrid('daily')" class="btn ghost">🖨️ طباعة القائمة</button>
+    </div>
+    <div style="margin-top:20px">
+        <h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة</h4>
+        <div class="filter-box" style="display:flex; gap:10px; align-items:flex-end">
+            <div><label class="small">من</label><input type="date" id="daily_hist_start"></div>
+            <div><label class="small">إلى</label><input type="date" id="daily_hist_end"></div>
+            <div><button class="btn ghost" onclick="window.app.refreshSessions('daily')">تحديث السجل</button></div>
+        </div>
+        <table class="table" id="daily_sessions_table"><thead id="daily_head"></thead><tbody id="daily_body"></tbody></table>
+    </div>
   </section>
 
   <!-- WEEKLY -->
@@ -186,8 +196,19 @@
     <h3>التقييم الأسبوعي</h3>
     <div class="row" style="margin-top:8px; margin-bottom:12px"><div><label class="small">التاريخ</label><input id="weekly_date" type="date"></div></div>
     <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px;"><div id="weekly_table_wrap"></div></div>
-    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;"><button id="saveWeekly" class="btn">💾 حفظ التقييم</button></div>
-    <div style="margin-top:20px"><h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة (الأسبوعية)</h4><table class="table" id="weekly_sessions_table"><thead id="weekly_head"></thead><tbody id="weekly_body"></tbody></table></div>
+    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;">
+      <button id="saveWeekly" class="btn">💾 حفظ التقييم</button>
+      <button onclick="window.app.printCurrentGrid('weekly')" class="btn ghost">🖨️ طباعة القائمة</button>
+    </div>
+    <div style="margin-top:20px">
+        <h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة</h4>
+        <div class="filter-box" style="display:flex; gap:10px; align-items:flex-end">
+            <div><label class="small">من</label><input type="date" id="weekly_hist_start"></div>
+            <div><label class="small">إلى</label><input type="date" id="weekly_hist_end"></div>
+            <div><button class="btn ghost" onclick="window.app.refreshSessions('weekly')">تحديث السجل</button></div>
+        </div>
+        <table class="table" id="weekly_sessions_table"><thead id="weekly_head"></thead><tbody id="weekly_body"></tbody></table>
+    </div>
   </section>
 
   <!-- MONTHLY -->
@@ -195,8 +216,19 @@
     <h3>التقييم الشهري</h3>
     <div class="row" style="margin-top:8px; margin-bottom:12px"><div><label class="small">التاريخ</label><input id="monthly_date" type="date"></div></div>
     <div style="background:#fff; border:1px solid #eee; padding:10px; border-radius:8px;"><div id="monthly_table_wrap"></div></div>
-    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;"><button id="saveMonthly" class="btn">💾 حفظ التقييم</button></div>
-    <div style="margin-top:20px"><h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة (الشهرية)</h4><table class="table" id="monthly_sessions_table"><thead id="monthly_head"></thead><tbody id="monthly_body"></tbody></table></div>
+    <div style="margin-top:15px;display:flex;gap:8px; border-top:1px solid #eee; padding-top:10px;">
+      <button id="saveMonthly" class="btn">💾 حفظ التقييم</button>
+      <button onclick="window.app.printCurrentGrid('monthly')" class="btn ghost">🖨️ طباعة القائمة</button>
+    </div>
+    <div style="margin-top:20px">
+        <h4 style="margin-bottom:5px; color:var(--emerald-dark)">سجل التقييمات السابقة</h4>
+        <div class="filter-box" style="display:flex; gap:10px; align-items:flex-end">
+            <div><label class="small">من</label><input type="date" id="monthly_hist_start"></div>
+            <div><label class="small">إلى</label><input type="date" id="monthly_hist_end"></div>
+            <div><button class="btn ghost" onclick="window.app.refreshSessions('monthly')">تحديث السجل</button></div>
+        </div>
+        <table class="table" id="monthly_sessions_table"><thead id="monthly_head"></thead><tbody id="monthly_body"></tbody></table>
+    </div>
   </section>
 
   <!-- Attendance -->
@@ -223,6 +255,27 @@
     </div>
     <div style="margin-top:8px"><button id="saveAbsence" class="btn">حفظ الغياب</button><button id="clearAbsence" class="btn ghost">مسح الكل</button></div>
     <div style="margin-top:12px"><table class="table" id="absence_table"><thead><tr><th>المعلم</th><th>التاريخ</th><th>النوع</th><th>خصم</th><th>حذف</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- NEW: Criteria Specific Report -->
+  <section id="criteriaReport" class="card screen" style="display:none">
+    <h3>📊 تقرير حسب البند</h3>
+    <div class="filter-box">
+      <div class="row">
+        <div style="flex:2">
+          <label class="small">اختر البند</label>
+          <select id="cr_report_select"></select>
+        </div>
+        <div style="flex:1"><label class="small">من تاريخ</label><input type="date" id="cr_start"></div>
+        <div style="flex:1"><label class="small">إلى تاريخ</label><input type="date" id="cr_end"></div>
+      </div>
+      <div style="margin-top:10px; display:flex; gap:10px;">
+        <button onclick="window.app.renderCriteriaStats()" class="btn">عرض التقرير</button>
+        <button onclick="window.app.printCriteriaReport()" class="btn ghost">🖨️ طباعة</button>
+        <button onclick="window.app.exportCriteriaExcel()" class="btn ghost" style="color:#217346">📥 Excel</button>
+      </div>
+    </div>
+    <div id="cr_output" style="margin-top:15px"></div>
   </section>
 
   <!-- Summary Report -->
@@ -320,7 +373,7 @@
 
 <script>
 (function(){
-const STORAGE = 'index27_final_v13_excel_sheet_names';
+const STORAGE = 'index27_final_v18_criteria_report';
 const ADMIN_USER = 'adminha';
 const ADMIN_PASS = '123456ha';
 
@@ -371,7 +424,111 @@ window.app = {
   deleteCriteria: (id) => { if(!confirm('حذف البند؟')) return; state.criteria = state.criteria.filter(x=> x.id !== id); state.deductions = state.deductions.filter(d=> d.criteriaId !== id); save(); renderCriteria(); toast('تم الحذف'); },
   deleteTeacherFromSession: (sessionId, teacherId, kind) => { if(!confirm('حذف سجل هذا المعلم؟')) return; const sess = state.evaluations.find(s => s.id === sessionId); if(!sess) return; const deductionsToRemove = state.deductions.filter(d => d.teacherId === teacherId && sess.deductionIds.includes(d.id)); const idsToRemove = deductionsToRemove.map(d => d.id); state.deductions = state.deductions.filter(d => !idsToRemove.includes(d.id)); sess.deductionIds = sess.deductionIds.filter(id => !idsToRemove.includes(id)); if(sess.deductionIds.length === 0) { state.evaluations = state.evaluations.filter(s => s.id !== sessionId); } save(); renderSessions(kind); toast('تم حذف السجل'); },
   deleteAttendance: (id) => { if(!confirm('حذف السجل؟')) return; state.attendance = state.attendance.filter(x=>x.id!==id); save(); renderAttendanceTable(); toast('تم الحذف'); },
-  deleteAbsence: (id) => { if(!confirm('حذف السجل؟')) return; state.absences = state.absences.filter(x=>x.id!==id); save(); renderAbsences(); toast('تم الحذف'); }
+  deleteAbsence: (id) => { if(!confirm('حذف السجل؟')) return; state.absences = state.absences.filter(x=>x.id!==id); save(); renderAbsences(); toast('تم الحذف'); },
+  refreshSessions: (kind) => { renderSessions(kind); },
+  
+  printSessionRow: (sessionId, teacherId) => {
+      const sess = state.evaluations.find(s => s.id === sessionId);
+      const teacher = state.teachers.find(t => t.id === teacherId);
+      if(!sess || !teacher) return;
+      const deds = state.deductions.filter(d => d.teacherId === teacherId && sess.deductionIds.includes(d.id));
+      let html = `<div style="direction:rtl;font-family:'Cairo',sans-serif;padding:20px;border:1px solid #ccc;max-width:600px;margin:auto;"><h2 style="text-align:center;color:#281987;">سجل تقييم</h2><div style="text-align:center;color:#666;">${new Date(sess.date).toLocaleDateString('ar-EG')}</div><div style="margin:15px 0;font-weight:bold;font-size:1.2rem;">المعلم: ${escapeHtml(teacher.name)}</div><table style="width:100%;border-collapse:collapse;"><tr style="background:#e3f2fd;"><th style="padding:8px;border:1px solid #ddd;">البند</th><th style="padding:8px;border:1px solid #ddd;">الخصم</th></tr>`;
+      let total = 0; deds.forEach(d => { const crit = state.criteria.find(c => c.id === d.criteriaId); html += `<tr><td style="padding:8px;border:1px solid #ddd;">${escapeHtml(crit?crit.name:'?')}</td><td style="padding:8px;border:1px solid #ddd;color:red;text-align:center;">${d.deduction}</td></tr>`; total+=d.deduction; });
+      html += `<tr style="background:#f9f9f9;font-weight:bold;"><td style="padding:8px;border:1px solid #ddd;">المجموع</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${total}</td></tr></table></div>`;
+      const win = window.open('','_blank'); win.document.write(`<html><head><title>طباعة</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"></head><body onload="window.print()">${html}</body></html>`); win.document.close();
+  },
+
+  printCurrentGrid: (kind) => {
+      const dateVal = el(`#${kind}_date`).value; if(!dateVal) return alert('يرجى اختيار التاريخ أولاً');
+      const critId = uiState[kind]; const crit = state.criteria.find(c=>c.id===critId); if(!crit) return;
+      const isPos = (crit.logic === 'positive'); const tbody = el(`#${kind}_table_wrap table tbody`); if(!tbody) return;
+      let rowsHtml = '';
+      Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+          const teacherName = tr.cells[0].textContent; const chk = tr.querySelector('input[type="checkbox"]'); const isChecked = chk ? chk.checked : false;
+          let statusText = ''; let dedVal = 0;
+          if(isPos) { if(isChecked) { statusText = '<span style="color:green;font-weight:bold;">✔ ملتزم</span>'; } else { statusText = '<span style="color:red;">✖ غير ملتزم</span>'; dedVal = crit.penalty; } } 
+          else { if(isChecked) { statusText = '<span style="color:red;">✖ مخالفة</span>'; dedVal = crit.penalty; } else { statusText = '<span style="color:green;">✔ ملتزم</span>'; } }
+          rowsHtml += `<tr><td style="padding:8px;border:1px solid #ddd;">${teacherName}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${statusText}</td><td style="padding:8px;border:1px solid #ddd;text-align:center;">${dedVal > 0 ? dedVal : '-'}</td></tr>`;
+      });
+      let html = `<div style="direction:rtl;font-family:'Cairo',sans-serif;padding:20px;"><h2 style="text-align:center;color:#281987;">كشف تقييم: ${crit.name}</h2><div style="text-align:center;color:#666;">تاريخ: ${new Date(dateVal).toLocaleDateString('ar-EG')}</div><table style="width:100%;border-collapse:collapse;margin-top:10px;"><thead><tr style="background:#e3f2fd;"><th style="padding:8px;border:1px solid #ddd;">المعلم</th><th style="padding:8px;border:1px solid #ddd;">الحالة</th><th style="padding:8px;border:1px solid #ddd;">الخصم</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+      const win = window.open('','_blank'); win.document.write(`<html><head><title>طباعة الكشف</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"></head><body onload="window.print()">${html}</body></html>`); win.document.close();
+  },
+
+  // NEW: Criteria Report Logic
+  renderCriteriaStats: () => {
+      const cid = el('#cr_report_select').value;
+      const s = el('#cr_start').value;
+      const e = el('#cr_end').value;
+      const out = el('#cr_output');
+      
+      if(!cid) { out.innerHTML='<div class="small">الرجاء اختيار بند</div>'; return; }
+      
+      const crit = state.criteria.find(c=>c.id===cid);
+      if(!crit) return;
+      
+      // Find deductions matching this criteria & date range
+      const deds = state.deductions.filter(d => d.criteriaId === cid && isDateInRange(d.date, s, e))
+                                   .sort((a,b) => new Date(a.date) - new Date(b.date));
+      
+      if(deds.length === 0){
+          out.innerHTML = '<div style="padding:20px;text-align:center;color:#666;">لا توجد خصومات/مخالفات مسجلة لهذا البند في الفترة المحددة.</div>';
+          return;
+      }
+      
+      let tableHtml = `<table class="table"><thead><tr><th>التاريخ</th><th>المعلم</th><th>الخصم</th></tr></thead><tbody>`;
+      deds.forEach(d => {
+          const t = state.teachers.find(x => x.id === d.teacherId) || {name:'?'};
+          tableHtml += `<tr><td>${new Date(d.date).toLocaleDateString('ar-EG')}</td><td>${escapeHtml(t.name)}</td><td style="color:red;font-weight:bold">${d.deduction}</td></tr>`;
+      });
+      tableHtml += `</tbody></table>`;
+      out.innerHTML = tableHtml;
+  },
+
+  printCriteriaReport: () => {
+      const cid = el('#cr_report_select').value;
+      if(!cid) return alert('اختر بنداً');
+      const crit = state.criteria.find(c=>c.id===cid);
+      const out = el('#cr_output').innerHTML;
+      if(!out || out.includes('لا توجد')) return alert('لا توجد بيانات للطباعة');
+      
+      const s = el('#cr_start').value;
+      const e = el('#cr_end').value;
+      
+      const html = `
+        <div style="direction:rtl;font-family:'Cairo',sans-serif;padding:20px;">
+            <h2 style="text-align:center;color:#281987;">تقرير مخالفات/خصومات: ${crit.name}</h2>
+            <div style="text-align:center;color:#666;margin-bottom:20px;">${(s||e)?'الفترة: من '+(s||'..')+' إلى '+(e||'..'):'كل الفترات'}</div>
+            <style>table{width:100%;border-collapse:collapse} th,td{border:1px solid #ccc;padding:8px;text-align:right} th{background:#f0f7ff}</style>
+            ${out}
+        </div>
+      `;
+      const win = window.open('','_blank'); win.document.write(`<html><head><title>طباعة تقرير البند</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet"></head><body onload="window.print()">${html}</body></html>`); win.document.close();
+  },
+
+  exportCriteriaExcel: () => {
+      const cid = el('#cr_report_select').value;
+      const s = el('#cr_start').value;
+      const e = el('#cr_end').value;
+      if(!cid) return alert('اختر بنداً');
+      const crit = state.criteria.find(c=>c.id===cid);
+      
+      const deds = state.deductions.filter(d => d.criteriaId === cid && isDateInRange(d.date, s, e))
+                                   .sort((a,b) => new Date(a.date) - new Date(b.date));
+                                   
+      if(deds.length===0) return alert('لا توجد بيانات');
+      
+      const data = [["تقرير البند: " + crit.name], ["الفترة: " + ((s||e)?(s+" إلى "+e):"الكل")], []];
+      data.push(["التاريخ", "المعلم", "الخصم"]);
+      deds.forEach(d => {
+          const t = state.teachers.find(x=>x.id===d.teacherId) || {name:'?'};
+          data.push([new Date(d.date).toLocaleDateString('ar-EG'), t.name, d.deduction]);
+      });
+      
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "تقرير البند");
+      XLSX.writeFile(wb, `تقرير_${crit.name}.xlsx`);
+  }
 };
 
 function renderTeachers(){
@@ -421,8 +578,16 @@ function renderAbsences(){
 
 function renderSessions(kind){
   const headEl = el('#'+kind+'_head'); const bodyEl = el('#'+kind+'_body'); if(!headEl || !bodyEl) return;
-  headEl.innerHTML = '<tr><th>المعلم</th><th>التاريخ</th><th>البند</th><th>خصم</th><th>حذف</th></tr>'; bodyEl.innerHTML = '';
-  const rows = state.evaluations.filter(s=> s.kind===kind).sort((a,b)=> new Date(b.date) - new Date(a.date));
+  // Date Filtering Logic for History Table
+  const startVal = el(`#${kind}_hist_start`) ? el(`#${kind}_hist_start`).value : null;
+  const endVal = el(`#${kind}_hist_end`) ? el(`#${kind}_hist_end`).value : null;
+
+  headEl.innerHTML = '<tr><th>المعلم</th><th>التاريخ</th><th>البند</th><th>خصم</th><th>طباعة</th><th>حذف</th></tr>'; bodyEl.innerHTML = '';
+  
+  const rows = state.evaluations
+    .filter(s=> s.kind===kind && isDateInRange(s.date, startVal, endVal))
+    .sort((a,b)=> new Date(b.date) - new Date(a.date));
+    
   rows.forEach(sess=>{
     if((sess.deductionIds||[]).length === 0) return;
     const tIds = [...new Set((sess.deductionIds||[]).map(id=> { const d=state.deductions.find(x=>x.id===id); return d?d.teacherId:null; }).filter(Boolean))];
@@ -433,6 +598,7 @@ function renderSessions(kind){
       const total = deds.reduce((s,d)=> s + (d.deduction||0), 0);
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${escapeHtml(t.name)}</td><td>${new Date(sess.date).toLocaleDateString('ar-EG')}</td><td>${critNames}</td><td class="center" style="color:var(--danger)">${total}</td>
+        <td class="center"><button class="btn ghost" style="padding:5px;" onclick="app.printSessionRow('${sess.id}', '${tid}')">🖨️</button></td>
         <td class="center"><button class="btn" style="background:var(--danger);color:#fff" onclick="app.deleteTeacherFromSession('${sess.id}','${tid}','${kind}')">حذف</button></td>`;
       bodyEl.appendChild(tr);
     });
@@ -806,11 +972,23 @@ function generateAndSaveExcel(t, s, e) {
     XLSX.writeFile(wb, `تقرير_${t.name.replace(/\s/g,'_')}.xlsx`);
 }
 
+function populateCriteriaReportSelect() {
+    const sel = el('#cr_report_select'); if(!sel) return;
+    sel.innerHTML = '<option value="">-- اختر البند --</option>';
+    state.criteria.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        sel.appendChild(opt);
+    });
+}
+
 function populateSelects(){
   ['attendance_teacher','absence_teacher','report_teacher_select'].forEach(id=>{
     const sel=el('#'+id); if(!sel) return; sel.innerHTML='<option value="">-- اختر --</option>';
     state.teachers.forEach(t=> { const o=document.createElement('option'); o.value=t.id; o.textContent=t.name; sel.appendChild(o); });
   });
+  populateCriteriaReportSelect(); // Added call
 }
 function importTeachersFile(file){
   const reader = new FileReader();
@@ -864,7 +1042,7 @@ function init(){
   el('#printFull').onclick = ()=> window.print();
   el('#printAllReports').onclick = printAllTeachers;
   el('#exportTeacherExcel').onclick = exportSingleTeacherToExcel;
-  el('#exportAllExcel').onclick = exportAllTeachersToExcel; // NEW BUTTON BINDING
+  el('#exportAllExcel').onclick = exportAllTeachersToExcel; 
   
   el('#backup').onclick = ()=> { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(state)],{type:'application/json'})); a.download='backup.json'; a.click(); };
   el('#backupTop').onclick = el('#backup').onclick;
